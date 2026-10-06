@@ -1,0 +1,2867 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#6E3F45">
+  <title>Meu Consultório</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+/* Meu Consultório — identidade: off-white, rosé, vinho. */
+:root{
+  --bg:#F7F3F1; --rose-l:#E8D2D2; --rose:#C98F94; --burnt:#B26D70; --wine:#6E3F45; --gray:#5D5555; --white:#FFFFFF;
+  --line:#EBDFDD; --soft:#FBF8F7; --ok-bg:#E6EEE7; --ok:#3E6A4B; --warn-bg:#F7EAD9; --warn:#8A5A1F; --bad-bg:#F5DADA; --bad:#8E2F36;
+  --shadow:0 8px 28px rgba(110,63,69,.07); --shadow-lg:0 20px 50px rgba(80,40,46,.22);
+  --r:18px; --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif; --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--gray);font:15px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--serif);color:var(--wine);margin:0;font-weight:600;letter-spacing:.2px}
+h1{font-size:2.15rem;line-height:1.1} h3{font-size:1.4rem} h4{font-size:1.15rem}
+a{color:var(--burnt)} button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--burnt);outline-offset:2px}
+.ic{flex:none;vertical-align:middle}
+[hidden]{display:none!important}
+
+/* Layout */
+#app{display:flex;min-height:100vh}
+.sidebar{width:256px;flex:none;background:var(--white);border-right:1px solid var(--line);position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;padding:26px 16px 18px;overflow-y:auto;z-index:20}
+.brand{display:flex;align-items:center;gap:12px;padding:0 10px 24px}
+.brand-mark{width:42px;height:42px;border-radius:14px;background:var(--wine);display:grid;place-items:center;overflow:hidden;flex:none}
+.brand-mark img{width:100%;height:100%;object-fit:cover}
+.brand-mark span{font-family:var(--serif);font-size:1.5rem;color:var(--rose-l);line-height:1}
+.brand-name{font-family:var(--serif);font-size:1.35rem;color:var(--wine);line-height:1.05;font-weight:600}
+.brand-name small{display:block;font:500 .72rem var(--sans);color:var(--rose);letter-spacing:.3px;margin-top:3px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;color:var(--gray);text-decoration:none;font-weight:500;transition:background .18s,color .18s}
+.nav a:hover{background:var(--soft);color:var(--wine)}
+.nav a.on{background:var(--rose-l);color:var(--wine)}
+.side-foot{margin-top:auto;padding:18px 10px 0;font-size:.74rem;color:#8d8282;line-height:1.45}
+.main{flex:1;margin-left:256px;min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:15;display:flex;align-items:center;gap:14px;padding:14px 32px;background:rgba(247,243,241,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-title{font-family:var(--serif);font-size:1.3rem;color:var(--wine);display:none}
+.search-box{position:relative;flex:1;max-width:520px}
+.search-box .ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--rose)}
+.search-box input{width:100%;height:44px;padding:0 14px 0 42px;border:1px solid var(--line);border-radius:14px;background:var(--white);font:inherit;color:var(--gray)}
+.search-box input:focus{border-color:var(--rose);outline:none;box-shadow:0 0 0 4px rgba(201,143,148,.18)}
+.search-results{position:absolute;top:52px;left:0;right:0;background:var(--white);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-lg);max-height:70vh;overflow:auto;padding:8px;z-index:30}
+.search-results h5{margin:10px 10px 4px;font:600 .72rem var(--sans);color:var(--rose);letter-spacing:.3px}
+.search-results button{display:block;width:100%;text-align:left;background:none;border:0;padding:9px 10px;border-radius:10px;color:var(--gray)}
+.search-results button:hover{background:var(--soft)} .search-results small{display:block;color:#8d8282}
+#topAdd{margin-left:auto}
+#searchToggle{display:none}
+.view{padding:30px 32px 80px;max-width:1240px;width:100%;margin:0 auto}
+.loading{display:grid;place-items:center;padding:90px 0;color:var(--rose)}
+.spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--rose-l);border-top-color:var(--burnt);animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Cabeçalhos e cartões */
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:24px}
+.page-head .sub{margin:6px 0 0;color:#7c7171}
+.head-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.card{background:var(--white);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:22px}
+.card+.card,.section{margin-top:20px}
+.card h3{margin-bottom:14px}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.card-head h3{margin:0}
+.grid{display:grid;gap:18px}
+.g-stats{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.g-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g-3{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
+.stat{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--shadow);transition:transform .2s,border-color .2s}
+.stat:hover{border-color:var(--rose)}
+.stat-l{font-size:.82rem;color:#7c7171;font-weight:500}
+.stat-v{font-family:var(--serif);font-size:2rem;line-height:1.1;color:var(--wine);font-weight:600}
+.stat-s{font-size:.78rem;color:#8d8282}
+.stat.hero{background:var(--wine);border-color:var(--wine)} .stat.hero .stat-l,.stat.hero .stat-s{color:var(--rose-l)} .stat.hero .stat-v{color:var(--white)}
+.stat.neg .stat-v{color:var(--bad)}
+.delta{font-size:.76rem;font-weight:600;margin-top:2px}.delta.good{color:var(--ok)}.delta.bad{color:var(--bad)}
+.hero-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:24px}
+.hero-head h1{font-size:2.5rem}
+.hello{font-family:var(--serif);font-size:1.35rem;color:var(--burnt);margin:4px 0 0}
+.month-nav{display:inline-flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--line);border-radius:14px;padding:4px}
+.month-nav strong{min-width:150px;text-align:center;color:var(--wine);font-weight:600}
+.alerts{display:grid;gap:10px;margin-bottom:22px}
+.alert{display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--rose-l);border-left:4px solid var(--burnt);border-radius:14px;padding:12px 16px;text-align:left;width:100%;color:var(--gray)}
+.alert .ic{color:var(--burnt)} .alert:hover{background:var(--soft)}
+.alert.info{border-left-color:var(--rose)}
+.notice{background:var(--soft);border:1px dashed var(--rose);border-radius:14px;padding:12px 14px;font-size:.84rem;color:var(--wine)}
+.notice.big{margin-top:24px}
+.list-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.list-row:last-child{border-bottom:0}.list-row small{display:block;color:#8d8282}
+.list-row strong{color:var(--wine);font-weight:600}
+.progress{height:10px;background:var(--rose-l);border-radius:99px;overflow:hidden}
+.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--rose),var(--burnt));border-radius:99px;transition:width .5s}
+.prog-line{display:flex;justify-content:space-between;font-size:.84rem;margin-bottom:6px}
+
+/* Botões */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:12px;padding:10px 18px;font-weight:600;line-height:1.2;transition:background .18s,transform .12s,box-shadow .18s;text-decoration:none;min-height:42px}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--wine);color:var(--white)} .btn.primary:hover{background:var(--burnt)}
+.btn.soft{background:var(--rose-l);color:var(--wine)} .btn.soft:hover{background:#dfc2c3}
+.btn.ghost{background:transparent;color:var(--gray);border-color:var(--line)} .btn.ghost:hover{background:var(--soft)}
+.btn.danger{background:var(--white);color:var(--bad);border-color:#e8c4c6} .btn.danger:hover{background:var(--bad-bg)}
+.btn.danger-solid{background:var(--bad);color:#fff}
+.btn.sm{padding:6px 12px;min-height:34px;font-size:.84rem;border-radius:10px}
+.btn:disabled{opacity:.55;cursor:default}
+.icon-btn{width:38px;height:38px;border-radius:11px;border:0;background:transparent;color:var(--gray);display:inline-grid;place-items:center;transition:background .15s,color .15s}
+.icon-btn:hover{background:var(--rose-l);color:var(--wine)} .icon-btn.danger:hover{background:var(--bad-bg);color:var(--bad)}
+.row-actions{display:flex;gap:2px;justify-content:flex-end;flex-wrap:wrap}
+
+/* Badges, tabs */
+.badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:.76rem;font-weight:600;white-space:nowrap}
+.badge.ok{background:var(--ok-bg);color:var(--ok)}.badge.warn{background:var(--warn-bg);color:var(--warn)}.badge.bad{background:var(--bad-bg);color:var(--bad)}
+.badge.rose{background:var(--rose-l);color:var(--wine)}.badge.neutral{background:#EFE9E7;color:var(--gray)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{border:1px solid var(--line);background:var(--white);color:var(--gray);padding:9px 16px;border-radius:99px;font-weight:500;white-space:nowrap;transition:all .18s}
+.tab em{font-style:normal;font-size:.76rem;background:var(--soft);border-radius:99px;padding:1px 8px;margin-left:4px}
+.tab.on{background:var(--wine);border-color:var(--wine);color:#fff}.tab.on em{background:rgba(255,255,255,.2);color:#fff}
+
+/* Filtros e tabelas */
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:flex-end}
+.f{display:flex;flex-direction:column;gap:4px;font-size:.76rem;color:#7c7171;min-width:130px}
+.f select,.f input{height:42px;border:1px solid var(--line);border-radius:12px;background:var(--white);padding:0 12px;font:inherit;color:var(--gray)}
+.f.search{position:relative;flex:1;min-width:200px}.f.search .ic{position:absolute;left:12px;bottom:12px;color:var(--rose)}.f.search input{padding-left:38px}
+.table-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;font-size:.78rem;font-weight:600;color:#8d8282;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:12px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tbody tr:hover{background:var(--soft)}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums}.tbl .act{text-align:right;width:1%;white-space:nowrap}
+.tbl strong{color:var(--wine)}
+.sum-strip{display:flex;gap:22px;flex-wrap:wrap;background:var(--soft);border-radius:14px;padding:12px 16px;margin-bottom:14px;font-size:.88rem}
+.sum-strip b{color:var(--wine);font-weight:600}
+.empty{text-align:center;padding:38px 18px;color:#8d8282}
+.empty-ic{width:62px;height:62px;border-radius:50%;background:var(--rose-l);color:var(--wine);display:grid;place-items:center;margin:0 auto 14px}
+.empty h4{margin-bottom:6px}.empty p{margin:0 auto 16px;max-width:380px}
+
+/* Pacientes */
+.pcard{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);cursor:pointer;text-align:left;width:100%;transition:border-color .2s,transform .2s;color:var(--gray)}
+.pcard:hover{border-color:var(--rose);transform:translateY(-2px)}
+.pcard h4{font-size:1.45rem;margin-bottom:6px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.pcard p{margin:3px 0;font-size:.88rem}
+.pcard .pend{color:var(--bad);font-weight:600}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px 22px}
+.info-grid dt{font-size:.76rem;color:#8d8282;margin-bottom:2px}.info-grid dd{margin:0;color:var(--wine);font-weight:500}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--burnt);text-decoration:none;font-weight:500;margin-bottom:12px;background:none;border:0;padding:0}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:14px}
+.slot{border:1px solid var(--line);border-radius:16px;padding:14px;background:var(--soft);text-align:left;color:var(--gray);transition:border-color .18s}
+.slot:hover{border-color:var(--rose)} .slot h5{margin:0 0 6px;font:600 .95rem var(--sans);color:var(--wine);display:flex;justify-content:space-between}
+.slot p{margin:2px 0;font-size:.84rem}
+.slot.done{background:var(--ok-bg);border-color:#cfe0d2}
+.pkg-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* Agenda */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal .wd{text-align:center;font-size:.76rem;font-weight:600;color:#8d8282;padding:6px 0}
+.day{min-height:96px;background:var(--white);border:1px solid var(--line);border-radius:14px;padding:8px;text-align:left;display:flex;flex-direction:column;gap:4px;color:var(--gray);transition:border-color .15s}
+.day:hover{border-color:var(--rose)} .day.empty{background:transparent;border-color:transparent;cursor:default}
+.day .n{font-weight:600;color:var(--wine);font-size:.9rem}
+.day.today .n{background:var(--wine);color:#fff;border-radius:99px;width:26px;height:26px;display:grid;place-items:center}
+.day.sel{border-color:var(--burnt);box-shadow:0 0 0 3px rgba(201,143,148,.25)}
+.chip{font-size:.7rem;line-height:1.25;padding:2px 6px;border-radius:6px;background:var(--soft);border-left:3px solid var(--c,var(--rose));white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.chips em{font-size:.7rem;color:#8d8282;font-style:normal}
+.dots{display:none;gap:3px;flex-wrap:wrap}.dot{width:7px;height:7px;border-radius:50%;background:var(--c,var(--rose));display:inline-block}
+.agenda-item{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:11px 14px;margin-bottom:8px;color:var(--gray)}
+.agenda-item:hover{border-color:var(--rose)}.agenda-item .dot{width:10px;height:10px;flex:none}.agenda-item small{display:block;color:#8d8282}
+.agenda-item.cancelled strong{text-decoration:line-through;opacity:.6}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.76rem;margin-top:14px}.legend span{display:inline-flex;gap:6px;align-items:center}
+
+/* Linha do tempo, metas */
+.timeline{position:relative;padding-left:26px}
+.timeline:before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--rose-l)}
+.t-item{position:relative;margin-bottom:20px}
+.t-item:before{content:'';position:absolute;left:-26px;top:8px;width:16px;height:16px;border-radius:50%;background:var(--white);border:3px solid var(--burnt)}
+.t-item .card{padding:18px}.t-item img{max-width:100%;max-height:260px;border-radius:14px;margin-top:10px;display:block}
+.t-date{font-size:.8rem;color:var(--burnt);font-weight:600;margin-bottom:4px}
+.goal h4{margin-bottom:8px}.chart-box{position:relative;height:270px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}.kv:last-child{border:0}
+.link-out{display:inline-flex;gap:4px;align-items:center;font-size:.84rem}
+
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(60,35,38,.38);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;transition:opacity .16s;z-index:100}
+.modal-backdrop.show{opacity:1}
+.modal{background:var(--white);border-radius:22px;width:min(560px,100%);max-height:92vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);transform:translateY(10px) scale(.98);transition:transform .2s}
+.modal.wide{width:min(760px,100%)}.show .modal{transform:none}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:20px 24px 8px}
+.modal-body{padding:8px 24px 18px;overflow-y:auto}
+.modal-foot{display:flex;gap:10px;align-items:center;padding:14px 24px 20px;border-top:1px solid var(--line)}
+.spacer{flex:1}
+.confirm-msg{margin:6px 0;line-height:1.6}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
+.span2{grid-column:1/-1}
+.form-section{grid-column:1/-1;margin-top:8px;padding-top:12px;border-top:1px solid var(--line);font-size:1.15rem}
+.form-section:first-child{border:0;margin-top:0;padding-top:0}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--wine);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;min-height:46px;border:1px solid var(--line);border-radius:12px;padding:10px 13px;font:inherit;color:var(--gray);background:var(--white)}
+.field textarea{resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--rose);outline:none;box-shadow:0 0 0 4px rgba(201,143,148,.18)}
+.field small{display:block;margin-top:4px;font-size:.74rem;color:#8d8282}
+.req{color:var(--burnt)}
+.check{display:flex!important;align-items:center;gap:10px;font-weight:500!important;color:var(--gray)!important;cursor:pointer;min-height:40px}
+.check input{width:20px!important;height:20px;min-height:0!important;accent-color:var(--wine)}
+.form-error{background:var(--bad-bg);color:var(--bad);border-radius:12px;padding:10px 14px;font-size:.88rem}
+.img-field{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.img-prev{width:84px;height:84px;object-fit:cover;border-radius:14px;border:1px solid var(--line)}
+.img-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-start}.img-actions input{min-height:0;border:0;padding:0;width:auto}
+.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.quick{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 8px;border-radius:16px;border:1px solid var(--line);background:var(--soft);color:var(--wine);font-weight:600;font-size:.86rem}
+.quick:hover{background:var(--rose-l)}
+
+/* Toast */
+#toastRoot{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;z-index:200;width:min(92vw,420px);pointer-events:none}
+.toast{display:flex;gap:10px;align-items:center;background:var(--wine);color:#fff;padding:13px 18px;border-radius:14px;box-shadow:var(--shadow-lg);opacity:0;transform:translateY(10px);transition:all .25s}
+.toast.show{opacity:1;transform:none}.toast.err{background:var(--bad)}
+
+/* Recibo e impressão */
+#printArea{display:none}
+.receipt{max-width:720px;margin:0 auto;padding:32px;border:1px solid var(--rose-l);border-radius:8px;color:#333;font-family:var(--sans);background:#fff}
+.receipt header{display:flex;gap:16px;align-items:center;border-bottom:2px solid var(--wine);padding-bottom:16px;margin-bottom:22px}
+.receipt .r-logo{width:64px;height:64px;object-fit:contain}.receipt h1{font-size:1.7rem}.receipt header p{margin:2px 0;font-size:.86rem}
+.receipt h2{font-size:1.4rem;display:flex;justify-content:space-between;margin-bottom:12px}
+.receipt .r-val{font-family:var(--serif);font-size:2.2rem;color:var(--wine);margin:6px 0 18px}
+.receipt p{line-height:1.7}.receipt .sign{margin:56px auto 8px;width:280px;text-align:center;border-top:1px solid #555;padding-top:6px;font-size:.88rem}
+.receipt footer{margin-top:28px;font-size:.76rem;color:#777;text-align:center}
+.report h1{margin-bottom:4px}.report h3{margin:22px 0 10px}
+@media print{
+  body.printing>*:not(#printArea){display:none!important}
+  body.printing #printArea{display:block}
+  body.printing{background:#fff}
+  .receipt{border:0;padding:0}
+  @page{margin:16mm}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+a.quick{text-decoration:none}
+
+</style>
+  <style>
+/* Experiência mobile: menu inferior, cards empilhados, botão flutuante */
+.bottomnav,.fab{display:none}
+@media (max-width:1100px){.g-2{grid-template-columns:1fr}}
+@media (max-width:900px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .topbar{padding:10px 16px;gap:10px}
+  .top-title{display:block;flex:1}
+  .search-box{display:none;position:absolute;left:12px;right:12px;top:58px;max-width:none}
+  .topbar.search-open .search-box{display:block}
+  .topbar.search-open .top-title{display:none}
+  .topbar.search-open .search-box{position:static;flex:1;display:block}
+  #searchToggle{display:inline-grid}
+  #topAdd{display:none}
+  .view{padding:20px 16px 130px}
+  h1{font-size:1.8rem}.hero-head h1{font-size:2rem}
+  .bottomnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--white);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom));justify-content:space-around}
+  .bottomnav a,.bottomnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border:0;background:none;color:#8d8282;font-size:.68rem;text-decoration:none;border-radius:12px}
+  .bottomnav .on{color:var(--wine);font-weight:600}.bottomnav .on .ic{stroke-width:2.1}
+  .fab{display:grid;place-items:center;position:fixed;right:18px;bottom:calc(84px + env(safe-area-inset-bottom));width:60px;height:60px;border-radius:50%;border:0;background:linear-gradient(135deg,var(--burnt),var(--wine));color:#fff;font-size:2rem;line-height:1;box-shadow:0 12px 28px rgba(110,63,69,.4);z-index:45}
+  #toastRoot{bottom:96px}
+  .g-stats{grid-template-columns:1fr 1fr;gap:12px}.stat{padding:14px}.stat-v{font-size:1.55rem}
+  .page-head{align-items:flex-start}.head-actions{width:100%}.head-actions .btn{flex:1}
+  .btn{min-height:46px}
+  .form-grid{grid-template-columns:1fr}
+  .modal-backdrop{align-items:flex-end;padding:0}
+  .modal,.modal.wide{width:100%;max-height:94vh;border-radius:24px 24px 0 0}
+  .modal-foot{flex-wrap:wrap}.modal-foot .btn{flex:1}
+  .quick-grid{grid-template-columns:repeat(3,1fr)}
+  .month-nav strong{min-width:120px}
+  /* tabelas viram cards empilhados */
+  .tbl thead{display:none}
+  .tbl,.tbl tbody,.tbl tr,.tbl td{display:block;width:100%}
+  .tbl tr{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:8px 14px;margin-bottom:12px}
+  .tbl td{display:flex;justify-content:space-between;gap:14px;border:0;padding:7px 0;text-align:right}
+  .tbl td:before{content:attr(data-label);color:#8d8282;font-size:.78rem;text-align:left;flex:none}
+  .tbl td.act{width:100%}.tbl td.act:before{content:''}.tbl td.num{text-align:right}
+  .tbl tbody tr:hover{background:var(--white)}
+  .row-actions{justify-content:flex-end;width:100%}.icon-btn{width:44px;height:44px}
+  /* agenda compacta */
+  .day{min-height:54px;padding:5px;align-items:center}.day .chips{display:none}.day .dots{display:flex;justify-content:center}
+  .cal{gap:4px}.filters .f{min-width:46%;flex:1}
+  .receipt{padding:18px}
+}
+@media (max-width:420px){.g-stats{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar" id="sidebar" aria-label="Menu principal"></aside>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main id="view" class="view"><div class="loading"><div class="spinner"></div><p>Carregando…</p></div></main>
+    </div>
+    <nav class="bottomnav" id="bottomnav" aria-label="Menu rápido"></nav>
+    <button class="fab" id="fab" aria-label="Adicionar novo registro">+</button>
+  </div>
+  <div id="modalRoot"></div>
+  <div id="toastRoot" aria-live="polite"></div>
+  <div id="printArea"></div>
+
+  <!-- Chart.js (CDN) — usado apenas na tela "Evolução" -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <!-- Núcleo: dados e interface base -->
+  <script>
+/* Utilidades gerais (sem dependência de interface ou de armazenamento) */
+(function () {
+  'use strict';
+  const CP = (window.CP = window.CP || {});
+  CP.views = CP.views || {};
+  CP.actions = CP.actions || {};
+  const U = (CP.U = {});
+  const pad = (n) => String(n).padStart(2, '0');
+
+  U.MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  U.WEEKDAYS = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo'];
+
+  U.uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  U.esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  U.money = (n) => (Number(n) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  U.norm = (s) => String(s == null ? '' : s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  U.today = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+  U.thisMonth = () => U.today().slice(0, 7);
+  U.monthKey = (d) => (d ? String(d).slice(0, 7) : '');
+  U.yearOf = (d) => (d ? String(d).slice(0, 4) : '');
+  U.fmtDate = (d) => (d && /^\d{4}-\d{2}-\d{2}/.test(d) ? `${d.slice(8, 10)}/${d.slice(5, 7)}/${d.slice(0, 4)}` : '—');
+  U.monthLabel = (k) => (k ? `${U.MONTHS[parseInt(k.slice(5, 7), 10) - 1]} de ${k.slice(0, 4)}` : '');
+  U.monthShort = (k) => U.MONTHS[parseInt(k.slice(5, 7), 10) - 1].slice(0, 3);
+  U.addMonths = (k, n) => {
+    let y = +k.slice(0, 4), m = +k.slice(5, 7) - 1 + n;
+    y += Math.floor(m / 12); m = ((m % 12) + 12) % 12;
+    return `${y}-${pad(m + 1)}`;
+  };
+  U.daysInMonth = (k) => new Date(+k.slice(0, 4), +k.slice(5, 7), 0).getDate();
+  U.sum = (arr, fn) => arr.reduce((s, x) => s + (Number(fn ? fn(x) : x) || 0), 0);
+  U.sortBy = (arr, fn, dir = 1) => arr.slice().sort((a, b) => { const x = fn(a), y = fn(b); return x < y ? -dir : x > y ? dir : 0; });
+  U.debounce = (fn, ms = 150) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+  U.pad = pad;
+
+  U.download = (name, text, mime = 'application/json') => {
+    const blob = new Blob([text], { type: mime });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  };
+  U.readText = (file) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsText(file); });
+  U.resizeImage = (file, max = 900, type = 'image/jpeg', quality = 0.82) => new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onerror = () => rej(r.error);
+    r.onload = () => {
+      const img = new Image();
+      img.onerror = () => rej(new Error('Não foi possível ler esta imagem.'));
+      img.onload = () => {
+        const k = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        res(c.toDataURL(type, quality));
+      };
+      img.src = r.result;
+    };
+    r.readAsDataURL(file);
+  });
+
+  /* Interpreta buscas por data: 17/08/2026, 2026-08-17, 08/2026 */
+  U.parseDateQuery = (q) => {
+    q = String(q || '').trim();
+    let m;
+    if ((m = q.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/))) return { type: 'day', value: `${m[3]}-${pad(m[2])}-${pad(m[1])}` };
+    if ((m = q.match(/^(\d{4})-(\d{2})-(\d{2})$/))) return { type: 'day', value: q };
+    if ((m = q.match(/^(\d{1,2})\/(\d{4})$/))) return { type: 'month', value: `${m[2]}-${pad(m[1])}` };
+    if ((m = q.match(/^(\d{4})-(\d{2})$/))) return { type: 'month', value: q };
+    return null;
+  };
+
+  /* Valor por extenso (R$) */
+  const UN = ['zero', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez', 'onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove'];
+  const DZ = ['', '', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa'];
+  const CT = ['', 'cento', 'duzentos', 'trezentos', 'quatrocentos', 'quinhentos', 'seiscentos', 'setecentos', 'oitocentos', 'novecentos'];
+  const ate999 = (n) => {
+    if (n === 0) return '';
+    if (n === 100) return 'cem';
+    const c = Math.floor(n / 100), r = n % 100, parts = [];
+    if (c) parts.push(CT[c]);
+    if (r) { if (r < 20) parts.push(UN[r]); else { const d = Math.floor(r / 10), u = r % 10; parts.push(DZ[d] + (u ? ' e ' + UN[u] : '')); } }
+    return parts.join(' e ');
+  };
+  const inteiro = (n) => {
+    if (n === 0) return 'zero';
+    const mil = Math.floor(n / 1000), resto = n % 1000;
+    let out = '';
+    if (mil) out += mil === 1 ? 'mil' : ate999(mil) + ' mil';
+    if (resto) out += (mil ? (resto < 100 || resto % 100 === 0 ? ' e ' : ' ') : '') + ate999(resto);
+    return out;
+  };
+  U.extenso = (valor) => {
+    const v = Math.round((Number(valor) || 0) * 100);
+    const reais = Math.floor(v / 100), cent = v % 100;
+    if (reais >= 1000000) return '';
+    const parts = [];
+    if (reais > 0 || cent === 0) parts.push(inteiro(reais) + (reais === 1 ? ' real' : ' reais'));
+    if (cent > 0) parts.push(inteiro(cent) + (cent === 1 ? ' centavo' : ' centavos'));
+    return parts.join(' e ');
+  };
+})();
+
+</script>
+  <script>
+/*
+ * CAMADA DE DADOS (única que conhece IndexedDB/localStorage).
+ * A interface NUNCA acessa o navegador diretamente: UI → Services → Storage.
+ *
+ * FASE 2: para migrar ao Supabase, reescreva os métodos deste arquivo
+ * (getPatients, savePatient, deletePatient, getPayments, ...) mantendo
+ * os mesmos nomes e retornos (Promises). Veja o README.
+ */
+(function () {
+  'use strict';
+  const CP = (window.CP = window.CP || {});
+
+  // store → [nome plural, nome singular] usados nos métodos getX / saveX / deleteX
+  const ENTITIES = {
+    patients: ['Patients', 'Patient'],
+    payments: ['Payments', 'Payment'],
+    sessions: ['Sessions', 'Session'],
+    expenses: ['Expenses', 'Expense'],
+    fixedExpenses: ['FixedExpenses', 'FixedExpense'],
+    products: ['Products', 'Product'],
+    sales: ['Sales', 'Sale'],
+    leads: ['Leads', 'Lead'],
+    followups: ['Followups', 'Followup'],
+    goals: ['Goals', 'Goal'],
+    achievements: ['Achievements', 'Achievement'],
+    events: ['Events', 'Event'],
+    receipts: ['Receipts', 'Receipt'],
+  };
+  const STORES = Object.keys(ENTITIES);
+  const DB_NAME = 'consultorio-psi';
+  const DB_VERSION = 1;
+  const FALLBACK_KEY = 'cp_fallback_data';
+  const SETTINGS_KEY = 'cp_settings';
+
+  let db = null;
+  let mode = 'indexeddb';
+  let mem = {};
+
+  /* ---------- Driver IndexedDB ---------- */
+  const idb = {
+    open() {
+      return new Promise((res, rej) => {
+        if (!window.indexedDB) return rej(new Error('IndexedDB indisponível'));
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = () => {
+          STORES.forEach((s) => { if (!req.result.objectStoreNames.contains(s)) req.result.createObjectStore(s, { keyPath: 'id' }); });
+        };
+        req.onsuccess = () => res(req.result);
+        req.onerror = () => rej(req.error);
+        req.onblocked = () => rej(new Error('IndexedDB bloqueado'));
+      });
+    },
+    getAll: (s) => new Promise((res, rej) => { const r = db.transaction(s).objectStore(s).getAll(); r.onsuccess = () => res(r.result || []); r.onerror = () => rej(r.error); }),
+    put: (s, rec) => new Promise((res, rej) => { const t = db.transaction(s, 'readwrite'); t.objectStore(s).put(rec); t.oncomplete = () => res(rec); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error); }),
+    remove: (s, id) => new Promise((res, rej) => { const t = db.transaction(s, 'readwrite'); t.objectStore(s).delete(id); t.oncomplete = () => res(); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error); }),
+    replaceAll: (data) => new Promise((res, rej) => {
+      const t = db.transaction(STORES, 'readwrite');
+      STORES.forEach((s) => { const os = t.objectStore(s); os.clear(); (data[s] || []).forEach((r) => os.put(r)); });
+      t.oncomplete = () => res(); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+    }),
+  };
+
+  /* ---------- Driver localStorage (plano B se IndexedDB falhar) ---------- */
+  const ls = {
+    load() { try { mem = JSON.parse(localStorage.getItem(FALLBACK_KEY)) || {}; } catch (e) { mem = {}; } STORES.forEach((s) => { mem[s] = mem[s] || []; }); },
+    persist() { localStorage.setItem(FALLBACK_KEY, JSON.stringify(mem)); },
+    async getAll(s) { return mem[s].slice(); },
+    async put(s, rec) { const i = mem[s].findIndex((x) => x.id === rec.id); if (i >= 0) mem[s][i] = rec; else mem[s].push(rec); ls.persist(); return rec; },
+    async remove(s, id) { mem[s] = mem[s].filter((x) => x.id !== id); ls.persist(); },
+    async replaceAll(data) { STORES.forEach((s) => { mem[s] = (data[s] || []).slice(); }); ls.persist(); },
+  };
+  const driver = () => (mode === 'indexeddb' ? idb : ls);
+
+  const storage = (CP.storage = {
+    STORES, ENTITIES,
+    async init() {
+      try { db = await idb.open(); mode = 'indexeddb'; }
+      catch (e) { console.warn('IndexedDB indisponível, usando localStorage.', e); mode = 'localStorage'; ls.load(); }
+      return mode;
+    },
+    get mode() { return mode; },
+    getAll: (s) => driver().getAll(s),
+    put: (s, rec) => driver().put(s, rec),
+    remove: (s, id) => driver().remove(s, id),
+    replaceAll: (data) => driver().replaceAll(data),
+    clearAll() { const empty = {}; STORES.forEach((s) => { empty[s] = []; }); return driver().replaceAll(empty); },
+    async exportAll() { const data = {}; for (const s of STORES) data[s] = await driver().getAll(s); return data; },
+
+    /* Configurações simples ficam no localStorage */
+    getSettings() { try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}; } catch (e) { return {}; } },
+    saveSettings(obj) { localStorage.setItem(SETTINGS_KEY, JSON.stringify(obj)); },
+  });
+
+  // Métodos nomeados (formato pedido): getPatients / savePatient / deletePatient, getPayments ...
+  Object.entries(ENTITIES).forEach(([store, [plural, singular]]) => {
+    storage['get' + plural] = () => storage.getAll(store);
+    storage['save' + singular] = (rec) => storage.put(store, rec);
+    storage['delete' + singular] = (id) => storage.remove(store, id);
+  });
+})();
+
+</script>
+  <script>
+/*
+ * Cache em memória + fábrica de serviços.
+ * Os serviços leem do cache (rápido, síncrono para a interface) e gravam
+ * pela camada storage (assíncrona). Na Fase 2 o cache continua igual;
+ * só o storage.js muda.
+ */
+(function () {
+  'use strict';
+  const CP = window.CP, S = CP.storage;
+  const cache = {};
+  S.STORES.forEach((s) => { cache[s] = []; });
+
+  CP.db = {
+    async load() { for (const s of S.STORES) cache[s] = await S.getAll(s); },
+    reset(data) { S.STORES.forEach((s) => { cache[s] = (data && data[s]) || []; }); },
+  };
+
+  CP.makeService = function (store) {
+    const singular = S.ENTITIES[store][1];
+    return {
+      store,
+      all: () => cache[store],
+      get: (id) => cache[store].find((x) => x.id === id),
+      async save(rec) {
+        const now = new Date().toISOString();
+        const out = { ...rec };
+        if (!out.id) { out.id = CP.U.uid(); out.createdAt = now; }
+        out.updatedAt = now;
+        await S['save' + singular](out);
+        const i = cache[store].findIndex((x) => x.id === out.id);
+        if (i >= 0) cache[store][i] = out; else cache[store].push(out);
+        return out;
+      },
+      async remove(id) {
+        await S['delete' + singular](id);
+        cache[store] = cache[store].filter((x) => x.id !== id);
+      },
+    };
+  };
+
+  /* Configurações (localStorage) */
+  CP.settings = {
+    DEFAULTS: {
+      name: 'Laís Rodrigues', profession: 'Psicóloga', crp: '05/63116',
+      phone: '', email: '', pix: '', cpf: '', address: '', receiptNote: '', logo: '',
+      monthlyGoal: 0, lastBackup: '', seeded: false,
+      expenseCategories: ['plataformas', 'internet', 'energia', 'marketing', 'cursos', 'supervisão', 'materiais', 'hospedagem', 'domínio', 'outros'],
+    },
+    data: {},
+    load() { this.data = { ...this.DEFAULTS, ...S.getSettings() }; },
+    get(k) { return this.data[k]; },
+    save(partial) { const next = { ...this.data, ...partial }; S.saveSettings(next); this.data = next; },
+    replace(obj) { const next = { ...this.DEFAULTS, ...obj }; S.saveSettings(next); this.data = next; },
+  };
+})();
+
+</script>
+  <!-- Serviços (regras de negócio) — ordem não importa entre si, mas ficam antes da UI -->
+  <script>
+/* Serviço de pacientes (somente dados administrativos — nunca clínicos) */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U;
+  const P = (CP.patients = CP.makeService('patients'));
+
+  P.NOTICE = 'Este sistema é exclusivamente administrativo e financeiro. Não armazene informações clínicas ou dados sensíveis de pacientes.';
+  P.STATUS = [['ativa', 'Ativa'], ['nova', 'Nova'], ['inativa', 'Inativa'], ['antiga', 'Antiga']];
+  P.MODEL = [['semanal', 'Semanal'], ['quinzenal', 'Quinzenal'], ['por_sessao', 'Por sessão'], ['pacote_mensal', 'Pacote mensal']];
+  P.FREQ = [['semanal', 'Semanal'], ['quinzenal', 'Quinzenal'], ['mensal', 'Mensal'], ['outra', 'Outra']];
+
+  P.name = (id, snapshot) => { const p = id && P.get(id); return p ? p.name : snapshot || '—'; };
+
+  P.fields = () => [
+    { key: 'name', label: 'Nome', type: 'text', required: true, full: true },
+    { key: 'status', label: 'Status', type: 'select', options: P.STATUS },
+    { key: 'phone', label: 'Telefone', type: 'tel' },
+    { key: 'email', label: 'E-mail', type: 'email' },
+    { type: 'section', label: 'Avaliação e início' },
+    { key: 'evaluationDate', label: 'Data da avaliação', type: 'date' },
+    { key: 'evaluationValue', label: 'Valor da avaliação (R$)', type: 'money' },
+    { key: 'startDate', label: 'Data de início', type: 'date' },
+    { key: 'exitDate', label: 'Data de saída', type: 'date', hint: 'Preencha somente se o acompanhamento foi encerrado.' },
+    { type: 'section', label: 'Cobrança e atendimento' },
+    { key: 'paymentModel', label: 'Modalidade de cobrança', type: 'select', options: [['', '—'], ...P.MODEL] },
+    { key: 'sessionValue', label: 'Valor da sessão (R$)', type: 'money' },
+    { key: 'packageSize', label: 'Nº de sessões do pacote', type: 'number', min: 1, max: 8, showIf: (v) => v.paymentModel === 'pacote_mensal' },
+    { key: 'paymentMethod', label: 'Forma de pagamento', type: 'select', options: [['', '—'], ...CP.payments.METHODS] },
+    { key: 'frequency', label: 'Frequência', type: 'select', options: [['', '—'], ...P.FREQ] },
+    { key: 'sessionDay', label: 'Dia da sessão', type: 'select', options: [['', '—'], ...U.WEEKDAYS] },
+    { key: 'sessionTime', label: 'Horário', type: 'time' },
+    { key: 'nextPaymentDate', label: 'Próximo pagamento (previsto)', type: 'date' },
+    { type: 'section', label: 'Observações' },
+    { key: 'notes', label: 'Observações administrativas', type: 'textarea', hint: 'Apenas informações administrativas. Sem diagnóstico, conteúdo de sessão ou dados clínicos.' },
+  ];
+
+  /* Indicadores derivados (nada é inventado: só o que foi registrado) */
+  P.stats = (id, month) => {
+    month = month || U.thisMonth();
+    const today = U.today();
+    const pays = CP.payments.all().filter((x) => x.patientId === id);
+    const paid = pays.filter((x) => x.status === 'pago');
+    const pend = pays.filter((x) => x.status === 'pendente' || x.status === 'parcial');
+    const sess = CP.sessions.all().filter((x) => x.patientId === id);
+    const done = sess.filter((s) => s.status === 'realizada').map((s) => s.date).sort();
+    const fut = sess.filter((s) => s.status === 'agendada' && s.date >= today).map((s) => s.date).sort();
+    const lastPay = paid.map((x) => x.date).sort().pop() || '';
+    const pendDates = pend.map((x) => x.date).filter(Boolean).sort();
+    const p = P.get(id) || {};
+    return {
+      lastSession: done.pop() || '',
+      nextSession: fut[0] || '',
+      lastPayment: lastPay,
+      nextPayment: pendDates[0] || p.nextPaymentDate || '',
+      receivedMonth: U.sum(paid.filter((x) => U.monthKey(x.date) === month), (x) => x.value),
+      pendingValue: U.sum(pend, (x) => x.value),
+      pendingCount: pend.length,
+    };
+  };
+
+  /* Pacientes iniciais — SOMENTE os dados informados. Horários, dias e pagamentos ficam vazios. */
+  P.seedData = () => [
+    { name: 'Larissa', status: 'ativa', startDate: '2026-02-27', paymentModel: 'semanal', sessionValue: 50 },
+    { name: 'Andreza', status: 'ativa', evaluationDate: '2026-05-28', evaluationValue: 120, startDate: '2026-06-11', paymentModel: 'pacote_mensal', packageSize: 4, sessionValue: 120 },
+    { name: 'Ádila', status: 'ativa', evaluationDate: '2026-08-10', evaluationValue: 170, startDate: '2026-08-17', paymentModel: 'pacote_mensal', packageSize: 4, sessionValue: 150 },
+    { name: 'Caroline', status: 'ativa', evaluationDate: '2026-08-17', evaluationValue: 150, startDate: '2026-08-24', paymentModel: 'pacote_mensal', packageSize: 4, sessionValue: 130 },
+  ];
+  P.seed = async () => { for (const d of P.seedData()) await P.save(d); };
+})();
+
+</script>
+  <script>
+/* Pagamentos, recibos e controle do Carnê-Leão */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U;
+  const Pay = (CP.payments = CP.makeService('payments'));
+
+  Pay.REF = [['sessao', 'Sessão'], ['pacote', 'Pacote'], ['avaliacao', 'Avaliação'], ['produto', 'Produto'], ['outro', 'Outro']];
+  Pay.METHODS = [['pix', 'Pix'], ['cartao', 'Cartão'], ['dinheiro', 'Dinheiro'], ['transferencia', 'Transferência'], ['outro', 'Outro']];
+  Pay.STATUS = [['pago', 'Pago'], ['pendente', 'Pendente'], ['parcial', 'Parcial'], ['estornado', 'Estornado']];
+
+  Pay.forPatient = (id) => Pay.all().filter((p) => p.patientId === id);
+  Pay.totals = (patientId, month, year) => {
+    const list = Pay.forPatient(patientId);
+    const paid = list.filter((p) => p.status === 'pago');
+    const pend = list.filter((p) => p.status === 'pendente' || p.status === 'parcial');
+    return {
+      month: U.sum(paid.filter((p) => U.monthKey(p.date) === month), (p) => p.value),
+      year: U.sum(paid.filter((p) => U.yearOf(p.date) === year), (p) => p.value),
+      count: paid.length,
+      countMonth: paid.filter((p) => U.monthKey(p.date) === month).length,
+      pendingValue: U.sum(pend, (p) => p.value),
+      pendingCount: pend.length,
+    };
+  };
+  Pay.awaitingReceipt = () => Pay.all().filter((p) => p.status === 'pago' && !p.receiptIssued);
+  Pay.awaitingCarne = () => Pay.all().filter((p) => p.status === 'pago' && !p.carneLeao);
+  Pay.pkgPaid = (patientId, month) => Pay.all().some((p) => p.patientId === patientId && p.refType === 'pacote' && p.status === 'pago' && (p.refMonth || U.monthKey(p.date)) === month);
+  Pay.defaultValue = (patientId, refType) => {
+    const p = patientId && CP.patients.get(patientId);
+    if (!p) return null;
+    if (refType === 'sessao') return p.sessionValue || null;
+    if (refType === 'pacote') return (p.packageSize || 4) * (p.sessionValue || 0) || null;
+    if (refType === 'avaliacao') return p.evaluationValue || null;
+    return null;
+  };
+
+  /* ---------- Recibos ---------- */
+  const Rc = (CP.receipts = CP.makeService('receipts'));
+  Rc.nextNumber = () => {
+    const y = new Date().getFullYear();
+    const max = Rc.all().filter((r) => String(r.number).endsWith('/' + y)).reduce((m, r) => Math.max(m, parseInt(r.number, 10) || 0), 0);
+    return String(max + 1).padStart(4, '0') + '/' + y;
+  };
+  Rc.defaultDescription = (pay) => {
+    if (!pay) return 'Serviços de psicologia';
+    if (pay.refType === 'pacote') return `Pacote mensal de sessões de psicoterapia (${U.monthLabel(pay.refMonth || U.monthKey(pay.date))})`;
+    if (pay.refType === 'avaliacao') return 'Avaliação psicológica';
+    if (pay.refType === 'sessao') return 'Sessão de psicoterapia';
+    return 'Serviços de psicologia';
+  };
+  Rc.issue = async (data) => {
+    const rec = await Rc.save({ ...data, number: data.number || Rc.nextNumber(), issueDate: data.issueDate || U.today() });
+    if (rec.paymentId) {
+      const p = Pay.get(rec.paymentId);
+      if (p) await Pay.save({ ...p, receiptIssued: true, receiptDate: rec.issueDate });
+    }
+    return rec;
+  };
+  Rc.removeWithUnlink = async (id) => {
+    const r = Rc.get(id);
+    await Rc.remove(id);
+    if (r && r.paymentId) {
+      const p = Pay.get(r.paymentId);
+      if (p && !Rc.all().some((x) => x.paymentId === p.id)) await Pay.save({ ...p, receiptIssued: false, receiptDate: '' });
+    }
+  };
+})();
+
+</script>
+  <script>
+/* Sessões (controle administrativo de presença/pacote) e agenda */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U;
+  const S = (CP.sessions = CP.makeService('sessions'));
+  S.STATUS = [['agendada', 'Agendada'], ['realizada', 'Realizada'], ['cancelada', 'Cancelada'], ['remarcada', 'Remarcada']];
+  S.forPatient = (id) => S.all().filter((s) => s.patientId === id);
+
+  /* Pacote mensal de um paciente num mês: slots 1..N */
+  S.pkg = (patientId, month) => {
+    const p = CP.patients.get(patientId);
+    const size = Number(p && p.packageSize) || 4;
+    const list = S.all().filter((s) => s.patientId === patientId && s.slot && (s.month || U.monthKey(s.date)) === month);
+    const slots = [];
+    for (let i = 1; i <= size; i++) slots.push({ n: i, session: list.find((s) => Number(s.slot) === i) || null });
+    return { size, slots, done: list.filter((s) => s.status === 'realizada').length, paid: CP.payments.pkgPaid(patientId, month) };
+  };
+
+  /* ---------- Eventos manuais e agregação da agenda ---------- */
+  const E = (CP.events = CP.makeService('events'));
+  E.TYPES = [['sessao', 'Sessão'], ['pagamento', 'Pagamento'], ['avaliacao', 'Avaliação'], ['vencimento', 'Vencimento'], ['followup', 'Follow-up']];
+  const A = (CP.agenda = {});
+  A.COLORS = { sessao: '#6E3F45', pagamento: '#B26D70', avaliacao: '#C98F94', vencimento: '#5D5555', followup: '#9C7A7E' };
+
+  A.items = (date) => {
+    const items = [];
+    const nm = CP.patients.name;
+    S.all().filter((s) => s.date === date).forEach((s) => items.push({ src: 'session', id: s.id, type: 'sessao', title: `Sessão — ${nm(s.patientId, s.patientName)}`, time: s.time || '', status: s.status }));
+    E.all().filter((e) => e.date === date).forEach((e) => items.push({ src: 'event', id: e.id, type: e.type, title: e.title || U_label(e.type), time: e.time || '' }));
+    CP.payments.all().filter((p) => p.date === date && (p.status === 'pendente' || p.status === 'parcial')).forEach((p) => items.push({ src: 'payment', id: p.id, type: 'pagamento', title: `A receber — ${nm(p.patientId, p.patientName)} (${U.money(p.value)})`, time: '' }));
+    CP.patients.all().filter((p) => p.evaluationDate === date).forEach((p) => items.push({ src: 'patient', id: p.id, type: 'avaliacao', title: `Avaliação — ${p.name}`, time: '' }));
+    CP.expenses.all().filter((x) => x.date === date && x.status === 'pendente').forEach((x) => items.push({ src: 'expense', id: x.id, type: 'vencimento', title: `Vence: ${x.name} (${U.money(x.value)})`, time: '' }));
+    CP.followups.all().filter((f) => f.nextContact === date && f.status === 'pendente').forEach((f) => items.push({ src: 'followup', id: f.id, type: 'followup', title: `Follow-up — ${f.name}`, time: '' }));
+    CP.leads.all().filter((l) => l.nextContact === date && CP.leads.OPEN.includes(l.status)).forEach((l) => items.push({ src: 'lead', id: l.id, type: 'followup', title: `Lead — ${l.name}`, time: '' }));
+    return items.sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
+  };
+  function U_label(t) { return (E.TYPES.find((x) => x[0] === t) || [, 'Evento'])[1]; }
+  A.monthMap = (month) => {
+    const map = {};
+    for (let d = 1; d <= U.daysInMonth(month); d++) { const date = `${month}-${U.pad(d)}`; map[date] = A.items(date); }
+    return map;
+  };
+})();
+
+</script>
+  <script>
+/* Despesas e despesas fixas */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U;
+  const E = (CP.expenses = CP.makeService('expenses'));
+  const Fx = (CP.fixed = CP.makeService('fixedExpenses'));
+
+  E.PERIOD = [['unica', 'Única'], ['mensal', 'Mensal'], ['anual', 'Anual'], ['semanal', 'Semanal']];
+  E.STATUS = [['pago', 'Pago'], ['pendente', 'Pendente']];
+  E.categories = () => CP.settings.get('expenseCategories') || [];
+  E.cap = (c) => (c ? c.charAt(0).toUpperCase() + c.slice(1) : '—');
+  E.catOptions = () => E.categories().map((c) => [c, E.cap(c)]);
+
+  Fx.PERIOD = [['mensal', 'Mensal'], ['anual', 'Anual']];
+  Fx.STATUS = [['ativa', 'Ativa'], ['inativa', 'Inativa']];
+  Fx.PRESETS = ['Claude', 'Canva', 'Internet', 'Hospedagem', 'Domínio'];
+
+  /* Lança no mês as despesas fixas ativas que ainda não foram lançadas (status pendente) */
+  Fx.generate = async (month) => {
+    let n = 0;
+    for (const f of Fx.all()) {
+      if (f.status !== 'ativa') continue;
+      if (f.periodicity === 'anual' && Number(f.dueMonth) !== Number(month.slice(5, 7))) continue;
+      if (E.all().some((e) => e.fixedId === f.id && U.monthKey(e.date) === month)) continue;
+      const day = Math.min(Math.max(1, Number(f.dueDay) || 1), U.daysInMonth(month));
+      await E.save({ name: f.name, category: f.category || 'outros', value: f.value, date: `${month}-${U.pad(day)}`, periodicity: f.periodicity, status: 'pendente', fixedId: f.id, note: 'Lançada a partir das despesas fixas' });
+      n++;
+    }
+    return n;
+  };
+})();
+
+</script>
+  <script>
+/* Produtos digitais e vendas */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U;
+  const P = (CP.products = CP.makeService('products'));
+  const S = (CP.sales = CP.makeService('sales'));
+  P.STATUS = [['ativo', 'Ativo'], ['inativo', 'Inativo']];
+  S.STATUS = [['pago', 'Pago'], ['pendente', 'Pendente'], ['reembolsado', 'Reembolsado']];
+
+  /* Lucro = receita das vendas pagas − custo unitário × quantidade vendida */
+  P.stats = (id, month) => {
+    const list = S.all().filter((s) => s.status === 'pago' && (!id || s.productId === id) && (!month || U.monthKey(s.date) === month));
+    const revenue = U.sum(list, (s) => s.value);
+    const cost = U.sum(list, (s) => { const p = P.get(s.productId); return p ? p.cost : 0; });
+    return { qty: list.length, revenue, profit: revenue - cost };
+  };
+})();
+
+</script>
+  <script>
+/* Leads (CRM simples) e Follow-up */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U;
+  const L = (CP.leads = CP.makeService('leads'));
+  const Fu = (CP.followups = CP.makeService('followups'));
+
+  L.ORIGIN = [['instagram', 'Instagram'], ['indicacao', 'Indicação'], ['google', 'Google'], ['whatsapp', 'WhatsApp'], ['outro', 'Outro']];
+  L.STATUS = [['novo', 'Novo'], ['conversando', 'Conversando'], ['agendou', 'Agendou avaliação'], ['realizou', 'Realizou avaliação'], ['fechou', 'Fechou terapia'], ['semresposta', 'Não respondeu'], ['nao_fechou', 'Não fechou'], ['depois', 'Acompanhar depois']];
+  L.OPEN = ['novo', 'conversando', 'agendou', 'realizou', 'depois'];
+
+  Fu.TYPE = [['antiga', 'Paciente antiga'], ['pausou', 'Paciente que pausou'], ['alta', 'Paciente que recebeu alta'], ['avaliacao', 'Fez avaliação'], ['interesse', 'Demonstrou interesse e não fechou']];
+  Fu.STATUS = [['pendente', 'Pendente'], ['contatado', 'Contatado'], ['encerrado', 'Encerrado']];
+
+  /* Contatos para acompanhar hoje (inclui atrasados) */
+  Fu.dueToday = () => {
+    const t = U.today();
+    const followups = Fu.all().filter((x) => x.status === 'pendente' && x.nextContact && x.nextContact <= t);
+    const leads = L.all().filter((x) => L.OPEN.includes(x.status) && x.nextContact && x.nextContact <= t);
+    return { followups, leads, count: followups.length + leads.length };
+  };
+})();
+
+</script>
+  <script>
+/* Metas e conquistas */
+(function () {
+  'use strict';
+  const CP = window.CP;
+  const G = (CP.goals = CP.makeService('goals'));
+  const A = (CP.achievements = CP.makeService('achievements'));
+  G.CAT = [['financeira', 'Financeira'], ['pacientes', 'Pacientes'], ['produtos', 'Produtos'], ['conteudo', 'Conteúdo'], ['pessoal', 'Pessoal'], ['outra', 'Outra']];
+  G.STATUS = [['andamento', 'Em andamento'], ['concluida', 'Concluída'], ['pausada', 'Pausada']];
+  G.UNIT = [['money', 'Valor em R$'], ['count', 'Quantidade']];
+  G.pct = (g) => (Number(g.target) > 0 ? Math.min(100, Math.round((Number(g.current) || 0) / Number(g.target) * 100)) : 0);
+  G.fmt = (g, v) => (g.unit === 'count' ? String(Number(v) || 0) : CP.U.money(v));
+  void A;
+})();
+
+</script>
+  <script>
+/*
+ * Regras financeiras (todas reais, nada inventado):
+ *  - Receita recebida  = SOMENTE pagamentos com status "pago" (+ vendas pagas).
+ *  - Receita prevista  = valores esperados das pacientes/pacotes no mês (+ produtos já lançados).
+ *  - A receber         = prevista − recebida (nunca negativo).
+ *  - Lucro             = recebida − despesas com status "pago".
+ */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U;
+  const F = (CP.finance = {});
+
+  /* Valor esperado de uma paciente no mês */
+  F.expectedForPatient = (p, m) => {
+    const live = ['ativa', 'nova'].includes(p.status) || (p.exitDate && U.monthKey(p.exitDate) >= m);
+    if (!live) return 0;
+    let exp = 0;
+    const started = !p.startDate || U.monthKey(p.startDate) <= m;
+    const exited = p.exitDate && U.monthKey(p.exitDate) < m;
+    if (started && !exited) {
+      if (p.paymentModel === 'pacote_mensal') exp += (Number(p.packageSize) || 0) * (Number(p.sessionValue) || 0);
+      else {
+        // semanal/quinzenal/por sessão: só conta sessões já agendadas/realizadas na agenda
+        const n = CP.sessions.all().filter((s) => s.patientId === p.id && U.monthKey(s.date) === m && ['agendada', 'realizada'].includes(s.status)).length;
+        exp += n * (Number(p.sessionValue) || 0);
+      }
+    }
+    if (p.evaluationDate && U.monthKey(p.evaluationDate) === m) exp += Number(p.evaluationValue) || 0;
+    return exp;
+  };
+
+  F.monthSummary = (m) => {
+    const pays = CP.payments.all().filter((x) => U.monthKey(x.date) === m);
+    const paid = pays.filter((x) => x.status === 'pago');
+    const pend = pays.filter((x) => x.status === 'pendente' || x.status === 'parcial');
+    const sales = CP.sales.all().filter((x) => U.monthKey(x.date) === m);
+    const salesPaid = sales.filter((x) => x.status === 'pago');
+    const salesPend = sales.filter((x) => x.status === 'pendente');
+    const patPaid = paid.filter((x) => x.refType !== 'produto');
+    const prodPaidPay = paid.filter((x) => x.refType === 'produto');
+    const patientRevenue = U.sum(patPaid, (x) => x.value);
+    const productRevenue = U.sum(salesPaid, (x) => x.value) + U.sum(prodPaidPay, (x) => x.value);
+    const received = patientRevenue + productRevenue;
+
+    // Previsto por paciente
+    const perPatient = [];
+    let expectedPatients = 0;
+    CP.patients.all().forEach((p) => {
+      const paidP = U.sum(patPaid.filter((x) => x.patientId === p.id), (x) => x.value);
+      const pendP = U.sum(pend.filter((x) => x.patientId === p.id && x.refType !== 'produto'), (x) => x.value);
+      const exp = Math.max(F.expectedForPatient(p, m), paidP + pendP);
+      if (exp > 0 || paidP > 0) perPatient.push({ id: p.id, name: p.name, expected: exp, paid: paidP, pending: Math.max(0, exp - paidP) });
+      expectedPatients += exp;
+    });
+    const knownIds = new Set(CP.patients.all().map((p) => p.id));
+    const orphanPaid = U.sum(patPaid.filter((x) => !knownIds.has(x.patientId)), (x) => x.value);
+    const orphanPend = U.sum(pend.filter((x) => !knownIds.has(x.patientId) && x.refType !== 'produto'), (x) => x.value);
+    if (orphanPaid + orphanPend > 0) { perPatient.push({ id: '', name: 'Sem paciente cadastrada', expected: orphanPaid + orphanPend, paid: orphanPaid, pending: orphanPend }); expectedPatients += orphanPaid + orphanPend; }
+
+    const productPending = U.sum(salesPend, (x) => x.value) + U.sum(pend.filter((x) => x.refType === 'produto'), (x) => x.value);
+    const expected = expectedPatients + productRevenue + productPending;
+    const toReceive = Math.max(0, expected - received);
+
+    const exps = CP.expenses.all().filter((x) => U.monthKey(x.date) === m);
+    const expensesPaid = U.sum(exps.filter((x) => x.status === 'pago'), (x) => x.value);
+    const expensesPending = U.sum(exps.filter((x) => x.status === 'pendente'), (x) => x.value);
+
+    const done = CP.sessions.all().filter((s) => s.status === 'realizada' && U.monthKey(s.date) === m);
+    const served = new Set([...done.map((s) => s.patientId), ...patPaid.map((x) => x.patientId)].filter(Boolean));
+    const payers = new Set(patPaid.map((x) => x.patientId).filter(Boolean));
+    const payerRevenue = U.sum(patPaid.filter((x) => x.patientId), (x) => x.value);
+
+    // Receita por produto
+    const byProduct = {};
+    salesPaid.forEach((s) => { const k = s.productId || '_'; byProduct[k] = byProduct[k] || { name: (CP.products.get(s.productId) || {}).name || 'Produto removido', qty: 0, revenue: 0 }; byProduct[k].qty++; byProduct[k].revenue += Number(s.value) || 0; });
+    if (prodPaidPay.length) byProduct._pay = { name: 'Pagamentos “referente a produto”', qty: prodPaidPay.length, revenue: U.sum(prodPaidPay, (x) => x.value) };
+
+    // Despesas por categoria
+    const byCategory = {};
+    exps.filter((x) => x.status === 'pago').forEach((x) => { byCategory[x.category || 'outros'] = (byCategory[x.category || 'outros'] || 0) + (Number(x.value) || 0); });
+
+    return {
+      month: m, received, patientRevenue, productRevenue, expected, toReceive,
+      expensesPaid, expensesPending, profit: received - expensesPaid,
+      sessionsDone: done.length, servedCount: served.size,
+      ticket: payers.size ? payerRevenue / payers.size : null,
+      perPatient: U.sortBy(perPatient, (x) => x.paid, -1),
+      byProduct: Object.values(byProduct), byCategory,
+      pendingPayments: pend, receiptsPending: paid.filter((x) => !x.receiptIssued), carnePending: paid.filter((x) => !x.carneLeao),
+      newPatients: CP.patients.all().filter((p) => U.monthKey(p.startDate) === m).length,
+      exits: CP.patients.all().filter((p) => U.monthKey(p.exitDate) === m).length,
+      newLeads: CP.leads.all().filter((l) => (l.firstContact ? U.monthKey(l.firstContact) : U.monthKey(l.createdAt)) === m).length,
+      hasData: received > 0 || expensesPaid > 0 || done.length > 0 || expected > 0,
+    };
+  };
+
+  F.yearSummary = (year) => {
+    const months = [];
+    for (let i = 1; i <= 12; i++) months.push(F.monthSummary(`${year}-${U.pad(i)}`));
+    const revenue = U.sum(months, (x) => x.received);
+    const expenses = U.sum(months, (x) => x.expensesPaid);
+    const active = months.filter((x) => x.received > 0 || x.expensesPaid > 0);
+    const withRev = months.filter((x) => x.received > 0);
+    const best = withRev.length ? withRev.reduce((a, b) => (b.received > a.received ? b : a)) : null;
+    const worst = withRev.length > 1 ? withRev.reduce((a, b) => (b.received < a.received ? b : a)) : null;
+    const served = new Set();
+    CP.sessions.all().filter((s) => s.status === 'realizada' && U.yearOf(s.date) === year).forEach((s) => s.patientId && served.add(s.patientId));
+    CP.payments.all().filter((p) => p.status === 'pago' && p.refType !== 'produto' && U.yearOf(p.date) === year).forEach((p) => p.patientId && served.add(p.patientId));
+    const salesPaid = CP.sales.all().filter((s) => s.status === 'pago' && U.yearOf(s.date) === year);
+    return {
+      year, months, revenue, expenses, profit: revenue - expenses,
+      avg: active.length ? revenue / active.length : null, activeMonths: active.length, best, worst,
+      served: served.size,
+      sessions: U.sum(months, (x) => x.sessionsDone),
+      evaluations: CP.patients.all().filter((p) => U.yearOf(p.evaluationDate) === year).length,
+      salesCount: salesPaid.length, salesRevenue: U.sum(salesPaid, (s) => s.value),
+    };
+  };
+})();
+
+</script>
+  <script>
+/* Backup em JSON: exportar, validar, importar e limpar */
+(function () {
+  'use strict';
+  const CP = window.CP;
+  const B = (CP.backup = {});
+  B.APP = 'consultorio-psi';
+  B.VERSION = 1;
+
+  B.export = async () => ({
+    app: B.APP, version: B.VERSION, exportedAt: new Date().toISOString(),
+    settings: CP.settings.data, data: await CP.storage.exportAll(),
+  });
+
+  B.validate = (obj) => {
+    const errors = [];
+    const counts = {};
+    let total = 0;
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return { ok: false, errors: ['O arquivo não tem o formato esperado.'], counts, total };
+    if (obj.app !== B.APP) errors.push('Este arquivo não parece ser um backup deste sistema.');
+    if (!obj.data || typeof obj.data !== 'object') errors.push('O backup não contém a seção de dados.');
+    else {
+      CP.storage.STORES.forEach((s) => {
+        const arr = obj.data[s];
+        if (arr === undefined) return;
+        if (!Array.isArray(arr)) { errors.push(`A seção "${s}" deveria ser uma lista.`); return; }
+        arr.forEach((r, i) => { if (!r || typeof r !== 'object' || typeof r.id !== 'string' || !r.id) errors.push(`Registro ${i + 1} de "${s}" sem identificador válido.`); });
+        counts[s] = arr.length; total += arr.length;
+      });
+    }
+    if (obj.settings !== undefined && (typeof obj.settings !== 'object' || obj.settings === null)) errors.push('As configurações do backup são inválidas.');
+    return { ok: errors.length === 0, errors: errors.slice(0, 6), counts, total };
+  };
+
+  B.import = async (obj) => {
+    const data = {};
+    CP.storage.STORES.forEach((s) => { data[s] = obj.data[s] || []; });
+    await CP.storage.replaceAll(data);
+    CP.db.reset(data);
+    if (obj.settings && typeof obj.settings === 'object') CP.settings.replace(obj.settings);
+    CP.settings.save({ seeded: true });
+  };
+
+  B.clear = async () => {
+    await CP.storage.clearAll();
+    CP.db.reset();
+    CP.settings.save({ seeded: true });
+  };
+})();
+
+</script>
+  <script>
+/* Componentes de interface reutilizáveis: modal, formulário, toast, tabela... */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U, esc = U.esc;
+  const UI = (CP.UI = {});
+
+  const ICONS = {
+    home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
+    users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M17 14c2.5 0 4 2 4 5"/>',
+    calendar: '<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>',
+    wallet: '<path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H19v14H6.5A2.5 2.5 0 0 1 4 16.5z"/><path d="M19 9h-4a2 2 0 0 0 0 4h4"/>',
+    receipt: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+    chart: '<path d="M4 20V4"/><path d="M4 20h16"/><path d="M8 16v-4M12 16V8M16 16v-6"/>',
+    tag: '<path d="M3 12V4h8l9 9-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/>',
+    box: '<path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/>',
+    userplus: '<circle cx="9.5" cy="8" r="3.3"/><path d="M3 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><path d="M19 8v6M16 11h6"/>',
+    bell: '<path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/>',
+    flag: '<path d="M5 21V4"/><path d="M5 4h12l-2 4 2 4H5"/>',
+    award: '<circle cx="12" cy="9" r="5.5"/><path d="M8.5 14 7 21l5-3 5 3-1.5-7"/>',
+    trend: '<path d="M3 17l6-6 4 4 8-9"/><path d="M15 6h6v6"/>',
+    settings: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+    trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+    search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>',
+    x: '<path d="M6 6l12 12M18 6 6 18"/>',
+    check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+    download: '<path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 20h14"/>',
+    upload: '<path d="M12 16V5M7.5 9.5 12 5l4.5 4.5M5 20h14"/>',
+    print: '<path d="M7 9V3h10v6M7 17H4.5v-7h15v7H17M7 14h10v7H7z"/>',
+    more: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+    chevL: '<path d="m15 5-7 7 7 7"/>',
+    chevR: '<path d="m9 5 7 7-7 7"/>',
+    alert: '<path d="M12 4 2.8 20h18.4z"/><path d="M12 10v5M12 17.5v.5"/>',
+    phone: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+    copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
+    refresh: '<path d="M20 11a8 8 0 0 0-14-4M4 5v4h4M4 13a8 8 0 0 0 14 4M20 19v-4h-4"/>',
+    link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  };
+  UI.icon = (n, size = 20) => `<svg class="ic" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ''}</svg>`;
+
+  /* ---------- Toast ---------- */
+  UI.toast = (msg, type = 'ok') => {
+    const root = document.getElementById('toastRoot');
+    if (!root) return;
+    const el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.setAttribute('role', 'status');
+    el.innerHTML = `${UI.icon(type === 'err' ? 'alert' : 'check', 18)}<span>${esc(msg)}</span>`;
+    root.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, type === 'err' ? 4600 : 3000);
+  };
+
+  /* ---------- Modal ---------- */
+  const stack = [];
+  UI.modal = ({ title, body, footer, wide, onClose }) => {
+    const root = document.getElementById('modalRoot');
+    const wrap = document.createElement('div');
+    wrap.className = 'modal-backdrop';
+    wrap.innerHTML = `<div class="modal ${wide ? 'wide' : ''}" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+      <div class="modal-head"><h3>${esc(title)}</h3><button class="icon-btn" data-close aria-label="Fechar">${UI.icon('x')}</button></div>
+      <div class="modal-body"></div>${footer ? '<div class="modal-foot"></div>' : ''}</div>`;
+    const bodyEl = wrap.querySelector('.modal-body');
+    if (typeof body === 'string') bodyEl.innerHTML = body; else if (body) bodyEl.appendChild(body);
+    let closed = false;
+    const api = {
+      el: wrap, body: bodyEl, foot: wrap.querySelector('.modal-foot'),
+      close() {
+        if (closed) return; closed = true;
+        const i = stack.indexOf(api); if (i >= 0) stack.splice(i, 1);
+        wrap.classList.remove('show');
+        setTimeout(() => wrap.remove(), 160);
+        if (onClose) onClose();
+      },
+    };
+    wrap.addEventListener('mousedown', (e) => { if (e.target === wrap) api.close(); });
+    wrap.querySelector('[data-close]').addEventListener('click', api.close);
+    root.appendChild(wrap);
+    stack.push(api);
+    requestAnimationFrame(() => wrap.classList.add('show'));
+    return api;
+  };
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && stack.length) stack[stack.length - 1].close(); });
+
+  UI.confirm = ({ title = 'Confirmar', message, confirmText = 'Confirmar', cancelText = 'Cancelar', danger = false }) =>
+    new Promise((res) => {
+      const m = UI.modal({ title, body: `<p class="confirm-msg">${message}</p>`, footer: true, onClose: () => res(false) });
+      m.foot.innerHTML = `<button class="btn ghost" data-no>${esc(cancelText)}</button><button class="btn ${danger ? 'danger-solid' : 'primary'}" data-yes>${esc(confirmText)}</button>`;
+      m.foot.querySelector('[data-no]').onclick = () => m.close();
+      m.foot.querySelector('[data-yes]').onclick = () => { res(true); m.close(); };
+    });
+
+  /* ---------- Formulário a partir de um esquema ---------- */
+  function fieldHtml(f, v) {
+    if (f.type === 'section') return `<h4 class="form-section span2">${esc(f.label)}</h4>`;
+    const id = 'f_' + f.key;
+    const span = f.full || f.type === 'textarea' || f.type === 'image' ? 'span2' : '';
+    const req = f.required ? ' <span class="req" aria-hidden="true">*</span>' : '';
+    let input = '';
+    switch (f.type) {
+      case 'select':
+        input = `<select name="${f.key}" id="${id}">${(f.options || []).map((o) => { const [val, lab] = Array.isArray(o) ? o : [o, o]; return `<option value="${esc(val)}" ${String(v == null ? '' : v) === String(val) ? 'selected' : ''}>${esc(lab)}</option>`; }).join('')}</select>`;
+        break;
+      case 'textarea':
+        input = `<textarea name="${f.key}" id="${id}" rows="${f.rows || 3}" placeholder="${esc(f.placeholder || '')}">${esc(v == null ? '' : v)}</textarea>`;
+        break;
+      case 'checkbox':
+        return `<div class="field span2" data-key="${f.key}"><label class="check"><input type="checkbox" name="${f.key}" id="${id}" ${v ? 'checked' : ''}><span>${esc(f.label)}</span></label></div>`;
+      case 'image':
+        input = `<div class="img-field"><img class="img-prev" alt="" ${v ? `src="${esc(v)}"` : 'hidden'}><div class="img-actions"><input type="file" accept="image/*" data-img="${f.key}" id="${id}"><button type="button" class="btn ghost sm" data-img-clear="${f.key}">Remover imagem</button></div></div>`;
+        break;
+      case 'money':
+      case 'number':
+        input = `<input type="number" inputmode="decimal" step="${f.type === 'money' ? '0.01' : f.step || '1'}" min="${f.min != null ? f.min : 0}" ${f.max != null ? `max="${f.max}"` : ''} name="${f.key}" id="${id}" value="${v == null ? '' : esc(v)}" placeholder="${esc(f.placeholder || (f.type === 'money' ? '0,00' : ''))}">`;
+        break;
+      default:
+        input = `<input type="${f.type || 'text'}" name="${f.key}" id="${id}" value="${esc(v == null ? '' : v)}" placeholder="${esc(f.placeholder || '')}" ${f.readonly ? 'readonly' : ''} autocomplete="off">`;
+    }
+    return `<div class="field ${span}" data-key="${f.key}"><label for="${id}">${esc(f.label)}${req}</label>${input}${f.hint ? `<small>${esc(f.hint)}</small>` : ''}</div>`;
+  }
+
+  UI.form = ({ title, fields, values = {}, submitText = 'Salvar', notice, wide, onSubmit, onChange, extraButtons = [] }) => {
+    const images = {};
+    fields.forEach((f) => { if (f.type === 'image') images[f.key] = values[f.key] || ''; });
+    const m = UI.modal({
+      title, wide, footer: true,
+      body: `<form class="form-grid" novalidate>${notice ? `<div class="notice span2">${notice}</div>` : ''}${fields.map((f) => fieldHtml(f, values[f.key])).join('')}<div class="form-error span2" role="alert" hidden></div></form>`,
+    });
+    m.foot.innerHTML = `${extraButtons.map((b, i) => `<button type="button" class="btn ${b.cls || 'ghost'}" data-extra="${i}">${esc(b.label)}</button>`).join('')}<span class="spacer"></span><button type="button" class="btn ghost" data-cancel>Cancelar</button><button type="button" class="btn primary" data-save>${esc(submitText)}</button>`;
+    const form = m.body.querySelector('form');
+    const errBox = form.querySelector('.form-error');
+    const el = (k) => form.querySelector(`[name="${k}"]`);
+    const read = () => {
+      const out = {};
+      fields.forEach((f) => {
+        if (f.type === 'section') return;
+        if (f.type === 'image') { out[f.key] = images[f.key] || ''; return; }
+        const e = el(f.key); if (!e) return;
+        if (f.type === 'checkbox') out[f.key] = e.checked;
+        else if (f.type === 'number' || f.type === 'money') out[f.key] = e.value === '' ? null : Number(e.value);
+        else out[f.key] = typeof e.value === 'string' ? e.value.trim() : e.value;
+      });
+      return out;
+    };
+    const set = (k, v) => { const e = el(k); if (!e) return; if (e.type === 'checkbox') e.checked = !!v; else e.value = v == null ? '' : v; };
+    const updateVis = () => {
+      const vals = read();
+      fields.forEach((f) => { if (f.showIf) { const w = form.querySelector(`[data-key="${f.key}"]`); if (w) w.hidden = !f.showIf(vals); } });
+    };
+    const handle = (ev) => { const k = ev.target && ev.target.name; if (onChange && k) onChange(k, read(), set); updateVis(); };
+    form.addEventListener('input', handle);
+    form.addEventListener('change', handle);
+    updateVis();
+
+    form.addEventListener('change', async (ev) => {
+      const t = ev.target;
+      if (t.dataset && t.dataset.img) {
+        const k = t.dataset.img;
+        if (!t.files || !t.files[0]) return;
+        try { images[k] = await U.resizeImage(t.files[0], 1000); const p = t.closest('.img-field').querySelector('.img-prev'); p.src = images[k]; p.hidden = false; }
+        catch (e) { UI.toast(e.message, 'err'); }
+      }
+    });
+    form.addEventListener('click', (ev) => {
+      const b = ev.target.closest('[data-img-clear]');
+      if (!b) return;
+      images[b.dataset.imgClear] = '';
+      const w = b.closest('.img-field'); w.querySelector('.img-prev').hidden = true; w.querySelector('input[type=file]').value = '';
+    });
+
+    const showErr = (msg) => { errBox.textContent = msg; errBox.hidden = false; };
+    let busy = false;
+    const submit = async () => {
+      if (busy) return;
+      errBox.hidden = true;
+      const vals = read();
+      for (const f of fields) {
+        if (!f.required || f.type === 'section') continue;
+        const w = form.querySelector(`[data-key="${f.key}"]`);
+        if (w && w.hidden) continue;
+        const v = vals[f.key];
+        if (v === '' || v == null) { showErr(`Preencha o campo “${f.label}”.`); const e = el(f.key); if (e && e.focus) e.focus(); return; }
+      }
+      busy = true;
+      const btn = m.foot.querySelector('[data-save]'); btn.disabled = true;
+      try { await onSubmit(vals); m.close(); }
+      catch (err) { console.warn(err); showErr(err && err.message ? err.message : 'Não foi possível salvar. Tente novamente.'); }
+      finally { busy = false; btn.disabled = false; }
+    };
+    form.addEventListener('submit', (e) => { e.preventDefault(); submit(); });
+    m.foot.querySelector('[data-save]').onclick = submit;
+    m.foot.querySelector('[data-cancel]').onclick = () => m.close();
+    m.foot.querySelectorAll('[data-extra]').forEach((b) => { b.onclick = () => extraButtons[Number(b.dataset.extra)].onClick(m); });
+    m.form = form; m.read = read; m.set = set;
+    const first = form.querySelector('input:not([type=file]):not([type=checkbox]), select, textarea');
+    if (first && window.innerWidth > 900) setTimeout(() => first.focus(), 60);
+    return m;
+  };
+
+  /* ---------- Blocos visuais ---------- */
+  UI.badge = (text, kind = 'neutral') => `<span class="badge ${kind}">${esc(text)}</span>`;
+  const KINDS = {
+    pago: 'ok', pendente: 'warn', parcial: 'warn', estornado: 'bad', realizada: 'ok', agendada: 'rose', cancelada: 'bad', remarcada: 'warn',
+    ativa: 'ok', nova: 'rose', inativa: 'neutral', antiga: 'neutral', ativo: 'ok', inativo: 'neutral', concluida: 'ok', andamento: 'rose', pausada: 'neutral',
+    contatado: 'ok', encerrado: 'neutral', reembolsado: 'bad', novo: 'rose', conversando: 'rose', agendou: 'rose', realizou: 'ok', fechou: 'ok',
+    semresposta: 'neutral', nao_fechou: 'bad', depois: 'warn', sim: 'ok', nao: 'warn',
+  };
+  UI.sb = (val, label) => UI.badge(label || val || '—', KINDS[val] || 'neutral');
+  UI.labelOf = (list, v) => { const f = list.find((x) => x[0] === v); return f ? f[1] : v || '—'; };
+
+  UI.empty = ({ icon = 'heart', title, text, action }) =>
+    `<div class="empty"><div class="empty-ic">${UI.icon(icon, 28)}</div><h4>${esc(title)}</h4>${text ? `<p>${esc(text)}</p>` : ''}${action || ''}</div>`;
+
+  UI.table = (cols, rows) => `<div class="table-wrap"><table class="tbl"><thead><tr>${cols.map((c) => `<th class="${c.cls || ''}">${esc(c.label)}</th>`).join('')}</tr></thead><tbody>${rows.map((r) => `<tr>${cols.map((c) => `<td data-label="${esc(c.label)}" class="${c.cls || ''}">${c.render(r)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+
+  UI.actions = (list) => `<div class="row-actions">${list.map((a) => `<button class="icon-btn ${a.danger ? 'danger' : ''}" data-act="${a.act}" data-id="${esc(a.id)}" title="${esc(a.label)}" aria-label="${esc(a.label)}">${UI.icon(a.icon, 17)}</button>`).join('')}</div>`;
+
+  UI.delegate = (root, handler) => root.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]');
+    if (b && root.contains(b)) handler(b.dataset.act, b.dataset.id, b, e);
+  });
+
+  UI.pageHead = (title, sub, actions) => `<div class="page-head"><div><h1>${esc(title)}</h1>${sub ? `<p class="sub">${sub}</p>` : ''}</div><div class="head-actions">${actions || ''}</div></div>`;
+  UI.tabs = (items, active) => `<div class="tabs" role="tablist">${items.map(([k, l, c]) => `<button class="tab ${k === active ? 'on' : ''}" role="tab" data-tab="${k}">${esc(l)}${c != null ? ` <em>${c}</em>` : ''}</button>`).join('')}</div>`;
+  UI.bindTabs = (root, cb) => root.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => cb(b.dataset.tab)));
+  UI.stat = ({ label, value, sub, extra, tone }) => `<div class="stat ${tone || ''}"><span class="stat-l">${esc(label)}</span><strong class="stat-v">${value}</strong>${sub ? `<span class="stat-s">${sub}</span>` : ''}${extra || ''}</div>`;
+  UI.progress = (pct) => `<div class="progress" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><span style="width:${Math.max(0, Math.min(100, pct))}%"></span></div>`;
+  UI.monthNav = (month, id = '') => `<div class="month-nav" ${id ? `id="${id}"` : ''}><button class="icon-btn" data-nav="-1" aria-label="Mês anterior">${UI.icon('chevL')}</button><strong>${esc(U.monthLabel(month))}</strong><button class="icon-btn" data-nav="1" aria-label="Próximo mês">${UI.icon('chevR')}</button></div>`;
+
+  UI.filters = (defs, state) => `<div class="filters">${defs.map((d) => {
+    const v = state[d.key] == null ? '' : state[d.key];
+    if (d.type === 'search') return `<div class="f search">${UI.icon('search', 16)}<input type="search" data-f="${d.key}" placeholder="${esc(d.label)}" value="${esc(v)}"></div>`;
+    if (d.type === 'month') return `<label class="f"><span>${esc(d.label)}</span><input type="month" data-f="${d.key}" value="${esc(v)}"></label>`;
+    return `<label class="f"><span>${esc(d.label)}</span><select data-f="${d.key}">${d.options.map(([val, lab]) => `<option value="${esc(val)}" ${String(v) === String(val) ? 'selected' : ''}>${esc(lab)}</option>`).join('')}</select></label>`;
+  }).join('')}</div>`;
+  UI.bindFilters = (root, state, cb) => root.querySelectorAll('[data-f]').forEach((el) => {
+    el.addEventListener(el.type === 'search' ? 'input' : 'change', () => { state[el.dataset.f] = el.value; cb(); });
+  });
+
+  UI.opts = {
+    patients: (blank) => [['', blank || '— selecione —'], ...U.sortBy(CP.patients.all(), (p) => U.norm(p.name)).map((p) => [p.id, p.name])],
+    years: () => {
+      const ys = new Set([U.today().slice(0, 4)]);
+      ['payments', 'expenses', 'sales', 'sessions'].forEach((k) => CP[k].all().forEach((r) => { if (r.date) ys.add(U.yearOf(r.date)); }));
+      return [...ys].sort().reverse();
+    },
+    list: (list, blank) => (blank ? [['', blank], ...list] : list),
+  };
+
+  UI.print = (html) => {
+    const pa = document.getElementById('printArea');
+    pa.innerHTML = html;
+    document.body.classList.add('printing');
+    const done = () => { document.body.classList.remove('printing'); pa.innerHTML = ''; window.removeEventListener('afterprint', done); };
+    window.addEventListener('afterprint', done);
+    setTimeout(() => { try { window.print(); } catch (e) { done(); } }, 60);
+  };
+})();
+
+</script>
+  <!-- Telas -->
+  <script>
+/* Dashboard "Meu Consultório" */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U, UI = CP.UI, esc = U.esc, F = CP.finance;
+  let month = U.thisMonth();
+
+  /* Só compara com o mês anterior quando existe dado para comparar */
+  const delta = (cur, prev, ok, goodUp = true) => {
+    if (!ok || !prev) return '';
+    const pct = ((cur - prev) / Math.abs(prev)) * 100;
+    if (!isFinite(pct)) return '';
+    const up = pct >= 0;
+    return `<span class="delta ${up === goodUp ? 'good' : 'bad'}">${up ? '▲' : '▼'} ${Math.abs(pct).toFixed(0)}% vs mês anterior</span>`;
+  };
+
+  CP.views.dashboard = {
+    render(root) {
+      const cur = F.monthSummary(month), prev = F.monthSummary(U.addMonths(month, -1)), hp = prev.hasData;
+      const first = (CP.settings.get('name') || '').split(' ')[0];
+      const active = CP.patients.all().filter((p) => p.status === 'ativa').length;
+      const goal = Number(CP.settings.get('monthlyGoal')) || 0;
+      const due = CP.followups.dueToday();
+      const today = U.today();
+      const upcoming = U.sortBy(CP.sessions.all().filter((s) => s.status === 'agendada' && s.date >= today), (s) => s.date + (s.time || '')).slice(0, 5);
+      const pend = U.sortBy(cur.pendingPayments, (p) => p.date).slice(0, 5);
+      const noReceipt = CP.payments.awaitingReceipt().length, noCarne = CP.payments.awaitingCarne().length;
+      const last = CP.settings.get('lastBackup');
+      const hasData = CP.payments.all().length + CP.patients.all().length > 0;
+      const oldBackup = hasData && (!last || (Date.now() - new Date(last).getTime()) / 864e5 > 14);
+
+      const alerts = [];
+      if (due.count) alerts.push(['bell', `Você possui ${due.count} contato${due.count > 1 ? 's' : ''} para acompanhar hoje.`, 'followup']);
+      if (noReceipt) alerts.push(['receipt', `${noReceipt} pagamento${noReceipt > 1 ? 's' : ''} pago${noReceipt > 1 ? 's' : ''} sem recibo emitido.`, 'recibos']);
+      if (noCarne) alerts.push(['wallet', `${noCarne} pagamento${noCarne > 1 ? 's' : ''} aguardando registro no Carnê-Leão.`, 'recibos:carne']);
+      if (oldBackup) alerts.push(['download', last ? 'Faz mais de 14 dias desde o último backup. Exporte um novo backup.' : 'Você ainda não exportou nenhum backup. Seus dados ficam apenas neste navegador.', 'configuracoes']);
+
+      root.innerHTML = `<div class="hero-head"><div><h1>Meu Consultório</h1><p class="hello">Olá${first ? ', ' + esc(first) : ''} 🌷</p></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">${UI.monthNav(month)}${month !== U.thisMonth() ? '<button class="btn ghost sm" data-today>Mês atual</button>' : ''}</div></div>
+        ${alerts.length ? `<div class="alerts">${alerts.map(([i, t, g]) => `<button class="alert" data-go="${g}">${UI.icon(i, 20)}<span>${esc(t)}</span></button>`).join('')}</div>` : ''}
+        <div class="grid g-stats">
+          ${UI.stat({ label: 'Receita recebida', value: U.money(cur.received), sub: 'Somente pagamentos pagos', extra: delta(cur.received, prev.received, hp), tone: 'hero' })}
+          ${UI.stat({ label: 'Receita prevista', value: U.money(cur.expected), sub: 'Valores esperados do mês', extra: delta(cur.expected, prev.expected, hp) })}
+          ${UI.stat({ label: 'A receber', value: U.money(cur.toReceive), sub: 'Previsto − recebido' })}
+          ${UI.stat({ label: 'Despesas', value: U.money(cur.expensesPaid), sub: cur.expensesPending ? `${U.money(cur.expensesPending)} ainda pendentes` : 'Somente despesas pagas', extra: delta(cur.expensesPaid, prev.expensesPaid, hp, false) })}
+          ${UI.stat({ label: 'Lucro', value: U.money(cur.profit), sub: 'Recebido − despesas pagas', extra: delta(cur.profit, prev.profit, hp), tone: cur.profit < 0 ? 'neg' : '' })}
+          ${UI.stat({ label: 'Pacientes ativas', value: active })}
+          ${UI.stat({ label: 'Sessões do mês', value: cur.sessionsDone, sub: 'Sessões marcadas como realizadas', extra: delta(cur.sessionsDone, prev.sessionsDone, hp) })}
+          ${UI.stat({ label: 'Ticket médio', value: cur.ticket == null ? '—' : U.money(cur.ticket), sub: 'Por paciente que pagou no mês' })}
+          ${UI.stat({ label: 'Receita de produtos', value: U.money(cur.productRevenue), extra: delta(cur.productRevenue, prev.productRevenue, hp) })}
+        </div>
+        ${goal > 0 ? `<section class="card section"><div class="prog-line"><strong style="color:var(--wine)">Meta financeira do mês</strong><span>${U.money(cur.received)} de ${U.money(goal)}</span></div>${UI.progress(Math.round(cur.received / goal * 100))}</section>` : ''}
+        <div class="grid g-2 section">
+          <section class="card"><h3>Próximas sessões</h3>${upcoming.length ? upcoming.map((s) => `<div class="list-row"><div><strong>${esc(CP.patients.name(s.patientId, s.patientName))}</strong><small>${U.fmtDate(s.date)}${s.time ? ' às ' + esc(s.time) : ''}</small></div></div>`).join('') : UI.empty({ icon: 'calendar', title: 'Nenhuma sessão agendada', text: 'Agende sessões na Agenda ou na ficha da paciente.' })}</section>
+          <section class="card"><h3>Pagamentos pendentes do mês</h3>${pend.length ? pend.map((p) => `<div class="list-row"><div><strong>${esc(CP.patients.name(p.patientId, p.patientName))}</strong><small>${U.fmtDate(p.date)} · ${esc(UI.labelOf(CP.payments.STATUS, p.status))}</small></div><strong>${U.money(p.value)}</strong></div>`).join('') : UI.empty({ icon: 'check', title: 'Nada pendente', text: 'Nenhum pagamento pendente registrado neste mês.' })}</section>
+        </div>
+        <section class="card section"><h3>Atalhos</h3><div class="head-actions">
+          <button class="btn soft" data-q="newPayment">+ Pagamento</button><button class="btn soft" data-q="newSession">+ Sessão</button><button class="btn soft" data-q="newPatient">+ Paciente</button><button class="btn soft" data-q="newExpense">+ Despesa</button><button class="btn soft" data-q="newLead">+ Lead</button></div></section>
+        <div class="notice big">Este sistema é administrativo e financeiro. Não utilize este espaço para armazenar prontuários ou informações clínicas.</div>`;
+
+      root.onclick = (e) => {
+        const nav = e.target.closest('[data-nav]'); if (nav) { month = U.addMonths(month, Number(nav.dataset.nav)); return CP.App.refresh(); }
+        if (e.target.closest('[data-today]')) { month = U.thisMonth(); return CP.App.refresh(); }
+        const g = e.target.closest('[data-go]');
+        if (g) { const [r, t] = g.dataset.go.split(':'); if (t) CP.views.recibos.tab = t; return CP.App.go(r); }
+        const q = e.target.closest('[data-q]'); if (q) CP.actions[q.dataset.q]();
+      };
+    },
+  };
+})();
+
+</script>
+  <script>
+/* Pacientes: lista por status, detalhe e formulário */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U, UI = CP.UI, esc = U.esc, P = CP.patients, A = CP.actions;
+  let tab = 'ativa', q = '';
+
+  function patientForm(p) {
+    UI.form({
+      title: p ? 'Editar paciente' : 'Nova paciente', wide: true, notice: P.NOTICE,
+      values: p || { status: 'ativa' }, submitText: p ? 'Salvar alterações' : 'Cadastrar paciente',
+      fields: P.fields(),
+      extraButtons: p ? [{ label: 'Excluir', cls: 'danger', onClick: (m) => { m.close(); A.deletePatient(p.id); } }] : [],
+      onSubmit: async (v) => {
+        const rec = { ...(p || {}), ...v };
+        if (rec.paymentModel !== 'pacote_mensal') rec.packageSize = null;
+        const saved = await P.save(rec);
+        // mantém o nome atualizado nos registros antigos (cópia do nome)
+        if (p && p.name !== saved.name) {
+          for (const x of CP.payments.forPatient(p.id)) await CP.payments.save({ ...x, patientName: saved.name });
+          for (const x of CP.sessions.forPatient(p.id)) await CP.sessions.save({ ...x, patientName: saved.name });
+        }
+        UI.toast(p ? 'Paciente atualizada.' : 'Paciente cadastrada.');
+        CP.App.refresh();
+      },
+    });
+  }
+  A.newPatient = (prefill) => patientForm(prefill ? { status: 'ativa', ...prefill } : null);
+  A.editPatient = (id) => { const p = P.get(id); if (p) patientForm(p); };
+  A.deletePatient = async (id) => {
+    const p = P.get(id); if (!p) return;
+    const ok = await UI.confirm({ title: 'Excluir paciente', message: `Excluir <strong>${esc(p.name)}</strong>? Os pagamentos e sessões já registrados continuam no histórico, com o nome dela.`, confirmText: 'Excluir paciente', danger: true });
+    if (!ok) return;
+    await P.remove(id);
+    UI.toast('Paciente excluída.');
+    if (CP.App.current.name === 'pacientes' && CP.App.current.param) CP.App.go('pacientes'); else CP.App.refresh();
+  };
+
+  function card(p) {
+    const st = P.stats(p.id);
+    const model = UI.labelOf(P.MODEL, p.paymentModel);
+    return `<button class="pcard" data-open="${p.id}"><h4>${esc(p.name)}${UI.sb(p.status, UI.labelOf(P.STATUS, p.status))}</h4>
+      <p>${p.sessionValue ? U.money(p.sessionValue) + ' por sessão' : 'Valor da sessão não informado'}${p.paymentModel ? ' · ' + esc(model) : ''}</p>
+      <p>Próximo atendimento: ${st.nextSession ? U.fmtDate(st.nextSession) : '—'}</p>
+      <p>Recebido no mês: <strong>${U.money(st.receivedMonth)}</strong></p>
+      ${st.pendingValue > 0 ? `<p class="pend">Pendente: ${U.money(st.pendingValue)}</p>` : ''}</button>`;
+  }
+
+  function list(root) {
+    const count = (s) => P.all().filter((p) => p.status === s).length;
+    root.innerHTML = UI.pageHead('Pacientes', 'Cadastro administrativo e financeiro.', `<button class="btn primary" id="newP">${UI.icon('plus', 18)} Paciente</button>`) +
+      `<div class="notice" style="margin-bottom:18px">${esc(P.NOTICE)}</div>` +
+      UI.tabs([['ativa', 'Ativas', count('ativa')], ['nova', 'Novas', count('nova')], ['inativa', 'Inativas', count('inativa')], ['antiga', 'Antigas', count('antiga')], ['leads', 'Leads', CP.leads.all().length]], tab) +
+      `<div class="filters">${UI.filters([{ key: 'q', label: 'Buscar por nome, telefone ou e-mail', type: 'search' }], { q })}</div><div id="list"></div>`;
+    const draw = () => {
+      const box = root.querySelector('#list');
+      if (tab === 'leads') {
+        const ls = CP.leads.all().filter((l) => !q || U.norm(l.name).includes(U.norm(q)));
+        box.innerHTML = ls.length ? `<div class="grid g-3">${ls.map((l) => `<button class="pcard" data-lead="${l.id}"><h4>${esc(l.name)}${UI.sb(l.status, UI.labelOf(CP.leads.STATUS, l.status))}</h4><p>Origem: ${esc(UI.labelOf(CP.leads.ORIGIN, l.origin))}</p><p>Próximo contato: ${U.fmtDate(l.nextContact)}</p></button>`).join('')}</div><p style="margin-top:16px"><a class="btn soft" href="#/leads">Abrir módulo de Leads</a></p>`
+          : UI.empty({ icon: 'userplus', title: 'Nenhum lead ainda', text: 'Registre novos contatos no módulo Leads.', action: '<a class="btn soft" href="#/leads">Ir para Leads</a>' });
+        return;
+      }
+      const ps = U.sortBy(P.all().filter((p) => p.status === tab && (!q || [p.name, p.phone, p.email].some((v) => U.norm(v).includes(U.norm(q))))), (p) => U.norm(p.name));
+      box.innerHTML = ps.length ? `<div class="grid g-3">${ps.map(card).join('')}</div>`
+        : UI.empty({ icon: 'users', title: q ? 'Nada encontrado' : 'Nenhuma paciente nesta categoria', text: q ? 'Tente outro termo de busca.' : 'Cadastre uma paciente para começar.', action: q ? '' : '<button class="btn soft" data-new>+ Paciente</button>' });
+    };
+    draw();
+    UI.bindTabs(root, (t) => { tab = t; list(root); });
+    root.querySelector('[data-f="q"]').addEventListener('input', (e) => { q = e.target.value; draw(); });
+    root.querySelector('#newP').onclick = () => A.newPatient();
+    root.querySelector('#list').addEventListener('click', (e) => {
+      const o = e.target.closest('[data-open]'); if (o) return CP.App.go('pacientes', o.dataset.open);
+      const l = e.target.closest('[data-lead]'); if (l) return A.editLead(l.dataset.lead);
+      if (e.target.closest('[data-new]')) A.newPatient();
+    });
+  }
+
+  function detail(root, id) {
+    const p = P.get(id);
+    if (!p) { CP.App.go('pacientes'); return; }
+    const month = U.thisMonth(), year = month.slice(0, 4);
+    const st = P.stats(id, month), tot = CP.payments.totals(id, month, year);
+    const row = (l, v) => `<div><dt>${esc(l)}</dt><dd>${v || '—'}</dd></div>`;
+    root.innerHTML = `<a class="back" href="#/pacientes">${UI.icon('chevL', 18)} Pacientes</a>` +
+      UI.pageHead(p.name, UI.sb(p.status, UI.labelOf(P.STATUS, p.status)),
+        `<button class="btn soft" data-d="pay">${UI.icon('wallet', 18)} Pagamento</button><button class="btn soft" data-d="ses">${UI.icon('calendar', 18)} Sessão</button><button class="btn ghost" data-d="edit">${UI.icon('edit', 18)} Editar</button><button class="btn danger" data-d="del">${UI.icon('trash', 18)} Excluir</button>`) +
+      `<div class="grid g-stats">
+        ${UI.stat({ label: 'Recebido no mês', value: U.money(tot.month), sub: `${tot.countMonth} pagamento(s)` })}
+        ${UI.stat({ label: 'Recebido no ano', value: U.money(tot.year), sub: `${tot.count} pagamento(s) no total` })}
+        ${UI.stat({ label: 'Valor pendente', value: U.money(st.pendingValue), sub: `${st.pendingCount} pendente(s)`, tone: st.pendingValue > 0 ? 'neg' : '' })}
+       </div>
+       <section class="card section"><h3>Dados administrativos</h3><dl class="info-grid">
+        ${row('Data da avaliação', U.fmtDate(p.evaluationDate) !== '—' ? U.fmtDate(p.evaluationDate) : '')}
+        ${row('Valor da avaliação', p.evaluationValue ? U.money(p.evaluationValue) : '')}
+        ${row('Data de início', U.fmtDate(p.startDate) !== '—' ? U.fmtDate(p.startDate) : '')}
+        ${row('Valor da sessão', p.sessionValue ? U.money(p.sessionValue) : '')}
+        ${row('Modalidade de cobrança', p.paymentModel ? esc(UI.labelOf(P.MODEL, p.paymentModel)) : '')}
+        ${row('Forma de pagamento', p.paymentMethod ? esc(UI.labelOf(CP.payments.METHODS, p.paymentMethod)) : '')}
+        ${row('Frequência', p.frequency ? esc(UI.labelOf(P.FREQ, p.frequency)) : '')}
+        ${row('Sessões do pacote', p.packageSize)}
+        ${row('Dia da sessão', esc(p.sessionDay || ''))}
+        ${row('Horário', esc(p.sessionTime || ''))}
+        ${row('Telefone', esc(p.phone || ''))}
+        ${row('E-mail', esc(p.email || ''))}
+        ${row('Último atendimento', st.lastSession ? U.fmtDate(st.lastSession) : '')}
+        ${row('Próximo atendimento', st.nextSession ? U.fmtDate(st.nextSession) : '')}
+        ${row('Último pagamento', st.lastPayment ? U.fmtDate(st.lastPayment) : '')}
+        ${row('Próximo pagamento', st.nextPayment ? U.fmtDate(st.nextPayment) : '')}
+        ${p.exitDate ? row('Data de saída', U.fmtDate(p.exitDate)) : ''}
+       </dl>${p.notes ? `<p style="margin-top:18px"><strong style="color:var(--wine)">Observações administrativas</strong><br>${esc(p.notes)}</p>` : ''}
+       <div class="notice big">${esc(P.NOTICE)}</div></section>
+       ${p.paymentModel === 'pacote_mensal' ? '<section class="card section" id="pkgBox"></section>' : ''}
+       <section class="card section"><div class="card-head"><h3>Pagamentos</h3></div><div id="payBox"></div></section>
+       <section class="card section"><div class="card-head"><h3>Sessões registradas</h3></div><div id="sesBox"></div></section>`;
+    if (p.paymentModel === 'pacote_mensal') CP.pkgUI.mount(root.querySelector('#pkgBox'), id);
+    const pays = U.sortBy(CP.payments.forPatient(id), (x) => x.date, -1);
+    root.querySelector('#payBox').innerHTML = pays.length ? CP.payUI.table(pays, { hidePatient: true }) : UI.empty({ icon: 'wallet', title: 'Nenhum pagamento registrado', text: 'Os pagamentos desta paciente aparecerão aqui.' });
+    const ses = U.sortBy(CP.sessions.forPatient(id), (x) => x.date, -1);
+    root.querySelector('#sesBox').innerHTML = ses.length ? CP.sesUI.table(ses, { hidePatient: true }) : UI.empty({ icon: 'calendar', title: 'Nenhuma sessão registrada', text: 'Registre sessões para acompanhar presença e pacotes.' });
+    CP.payUI.bind(root.querySelector('#payBox')); CP.sesUI.bind(root.querySelector('#sesBox'));
+    const d = (k) => root.querySelector(`[data-d="${k}"]`);
+    d('pay').onclick = () => A.newPayment({ patientId: id, paymentMethod: p.paymentMethod, method: p.paymentMethod || 'pix' });
+    d('ses').onclick = () => A.newSession({ patientId: id, time: p.sessionTime || '' });
+    d('edit').onclick = () => A.editPatient(id);
+    d('del').onclick = () => A.deletePatient(id);
+  }
+
+  CP.views.pacientes = { render(root, id) { if (id) detail(root, id); else list(root); } };
+})();
+
+</script>
+  <script>
+/* Tela de pagamentos + componentes reutilizáveis (payUI) */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U, UI = CP.UI, esc = U.esc, Pay = CP.payments, A = CP.actions;
+  const nm = CP.patients.name;
+
+  /* ---------- Formulário ---------- */
+  function paymentForm(p, prefill) {
+    const vals = p ? { ...p, refMonth: p.refMonth || U.monthKey(p.date) } : { date: U.today(), status: 'pago', refType: 'sessao', method: 'pix', ...prefill };
+    if (!vals.refMonth) vals.refMonth = U.monthKey(vals.date);
+    let auto = null;
+    if (!p && vals.patientId && vals.value == null) { const d = Pay.defaultValue(vals.patientId, vals.refType); if (d != null) { vals.value = d; auto = d; } }
+    UI.form({
+      title: p ? 'Editar pagamento' : 'Registrar pagamento', values: vals, submitText: p ? 'Salvar alterações' : 'Registrar pagamento', wide: true,
+      fields: [
+        { key: 'patientId', label: 'Paciente', type: 'select', options: UI.opts.patients('— sem paciente —') },
+        { key: 'value', label: 'Valor (R$)', type: 'money', required: true },
+        { key: 'date', label: 'Data', type: 'date', required: true },
+        { key: 'refType', label: 'Referente a', type: 'select', options: Pay.REF },
+        { key: 'refMonth', label: 'Mês do pacote', type: 'month', showIf: (v) => v.refType === 'pacote' },
+        { key: 'method', label: 'Forma de pagamento', type: 'select', options: Pay.METHODS },
+        { key: 'status', label: 'Status', type: 'select', options: Pay.STATUS, hint: 'Só pagamentos “pagos” entram na receita recebida.' },
+        { type: 'section', label: 'Recibo e Carnê-Leão' },
+        { key: 'receiptIssued', label: 'Recibo emitido?', type: 'checkbox' },
+        { key: 'receiptDate', label: 'Data do recibo', type: 'date', showIf: (v) => v.receiptIssued },
+        { key: 'carneLeao', label: 'Carnê-Leão registrado?', type: 'checkbox' },
+        { key: 'carneDate', label: 'Data do registro', type: 'date', showIf: (v) => v.carneLeao },
+        { key: 'note', label: 'Observações', type: 'textarea' },
+      ],
+      onChange: (key, v, set) => {
+        if (key === 'patientId' || key === 'refType') {
+          const d = Pay.defaultValue(v.patientId, v.refType);
+          if (d != null && (v.value == null || v.value === auto)) { set('value', d); auto = d; }
+        }
+      },
+      extraButtons: p ? [{ label: 'Excluir', cls: 'danger', onClick: async (m) => { m.close(); A.deletePayment(p.id); } }] : [],
+      onSubmit: async (v) => {
+        const pat = v.patientId ? CP.patients.get(v.patientId) : null;
+        const rec = {
+          ...(p || {}), ...v, value: Number(v.value) || 0,
+          patientName: pat ? pat.name : (p && p.patientId === v.patientId ? p.patientName : ''),
+          refMonth: v.refType === 'pacote' ? v.refMonth || U.monthKey(v.date) : '',
+          receiptDate: v.receiptIssued ? v.receiptDate || U.today() : '',
+          carneDate: v.carneLeao ? v.carneDate || U.today() : '',
+        };
+        if (!(rec.value > 0)) throw new Error('Informe um valor maior que zero.');
+        await Pay.save(rec);
+        UI.toast(p ? 'Pagamento atualizado.' : 'Pagamento registrado com sucesso.');
+        CP.App.refresh();
+      },
+    });
+  }
+  A.newPayment = (prefill) => paymentForm(null, prefill || {});
+  A.editPayment = (id) => { const p = Pay.get(id); if (p) paymentForm(p); };
+  A.deletePayment = async (id) => {
+    const ok = await UI.confirm({ title: 'Excluir pagamento', message: 'Excluir este pagamento do histórico? Esta ação não pode ser desfeita.', confirmText: 'Excluir', danger: true });
+    if (!ok) return;
+    await Pay.remove(id); UI.toast('Pagamento excluído.'); CP.App.refresh();
+  };
+
+  /* ---------- Tabela reutilizável ---------- */
+  CP.payUI = {
+    table(rows, opts = {}) {
+      const cols = [
+        { label: 'Data', render: (p) => U.fmtDate(p.date) },
+        ...(opts.hidePatient ? [] : [{ label: 'Paciente', render: (p) => `<strong>${esc(nm(p.patientId, p.patientName))}</strong>` }]),
+        { label: 'Referente', render: (p) => esc(UI.labelOf(Pay.REF, p.refType)) + (p.refType === 'pacote' && p.refMonth ? `<br><small>${esc(U.monthLabel(p.refMonth))}</small>` : '') },
+        { label: 'Forma', render: (p) => esc(UI.labelOf(Pay.METHODS, p.method)) },
+        { label: 'Valor', cls: 'num', render: (p) => `<strong>${U.money(p.value)}</strong>` },
+        { label: 'Status', render: (p) => UI.sb(p.status, UI.labelOf(Pay.STATUS, p.status)) },
+        { label: 'Recibo', render: (p) => UI.sb(p.receiptIssued ? 'sim' : 'nao', p.receiptIssued ? 'Sim' : 'Não') },
+        { label: 'Carnê-Leão', render: (p) => UI.sb(p.carneLeao ? 'sim' : 'nao', p.carneLeao ? 'Sim' : 'Não') },
+        { label: '', cls: 'act', render: (p) => UI.actions([
+          ...(p.status === 'pago' ? [{ act: 'pay-receipt', id: p.id, icon: 'receipt', label: 'Gerar recibo' }] : []),
+          { act: 'pay-edit', id: p.id, icon: 'edit', label: 'Editar' },
+          { act: 'pay-del', id: p.id, icon: 'trash', label: 'Excluir', danger: true },
+        ]) },
+      ];
+      return UI.table(cols, rows);
+    },
+    bind(root) {
+      UI.delegate(root, (act, id) => {
+        if (act === 'pay-edit') A.editPayment(id);
+        else if (act === 'pay-del') A.deletePayment(id);
+        else if (act === 'pay-receipt') A.issueReceipt(id);
+      });
+    },
+  };
+
+  /* ---------- Tela ---------- */
+  const f = { month: U.thisMonth(), year: '', patient: '', status: '', method: '', receipt: '', carne: '' };
+  const yn = [['', 'Todos'], ['sim', 'Sim'], ['nao', 'Não']];
+
+  function filtered() {
+    return U.sortBy(Pay.all().filter((p) => {
+      if (f.month && U.monthKey(p.date) !== f.month) return false;
+      if (!f.month && f.year && U.yearOf(p.date) !== f.year) return false;
+      if (f.patient && p.patientId !== f.patient) return false;
+      if (f.status && p.status !== f.status) return false;
+      if (f.method && p.method !== f.method) return false;
+      if (f.receipt && (f.receipt === 'sim') !== !!p.receiptIssued) return false;
+      if (f.carne && (f.carne === 'sim') !== !!p.carneLeao) return false;
+      return true;
+    }), (p) => p.date + (p.createdAt || ''), -1);
+  }
+
+  CP.views.pagamentos = {
+    render(root) {
+      const weekly = CP.patients.all().filter((p) => ['semanal', 'quinzenal', 'por_sessao'].includes(p.paymentModel) && ['ativa', 'nova'].includes(p.status));
+      const refMonth = f.month || U.thisMonth();
+      const refYear = f.month ? f.month.slice(0, 4) : f.year || U.today().slice(0, 4);
+      root.innerHTML = UI.pageHead('Pagamentos', 'Histórico completo de pagamentos recebidos e pendentes.', `<button class="btn primary" id="newPay">${UI.icon('plus', 18)} Registrar pagamento</button>`) +
+        (weekly.length ? `<section class="card"><h3>Pagamentos semanais</h3><p class="sub" style="margin-top:-8px">Referência: ${esc(U.monthLabel(refMonth))} e ano ${refYear}.</p><div class="grid g-3">${weekly.map((p) => {
+          const t = Pay.totals(p.id, refMonth, refYear);
+          return `<div class="stat"><span class="stat-l">${esc(p.name)}${p.sessionValue ? ` · padrão ${U.money(p.sessionValue)}` : ''}</span><strong class="stat-v">${U.money(t.month)}</strong><span class="stat-s">no mês · ${t.countMonth} pagamento(s)</span><span class="stat-s">${U.money(t.year)} no ano · ${t.count} no total · ${t.pendingCount} pendente(s)</span></div>`;
+        }).join('')}</div></section>` : '') +
+        `<section class="card section">${UI.filters([
+          { key: 'month', label: 'Mês', type: 'month' },
+          { key: 'year', label: 'Ano', options: UI.opts.list(UI.opts.years().map((y) => [y, y]), 'Todos') },
+          { key: 'patient', label: 'Paciente', options: UI.opts.patients('Todas') },
+          { key: 'status', label: 'Status', options: UI.opts.list(Pay.STATUS, 'Todos') },
+          { key: 'method', label: 'Forma de pagamento', options: UI.opts.list(Pay.METHODS, 'Todas') },
+          { key: 'receipt', label: 'Recibo emitido', options: yn },
+          { key: 'carne', label: 'Carnê-Leão', options: yn },
+        ], f)}<div id="list"></div></section>`;
+      const draw = () => {
+        const rows = filtered();
+        const paid = U.sum(rows.filter((p) => p.status === 'pago'), (p) => p.value);
+        const pend = U.sum(rows.filter((p) => p.status === 'pendente' || p.status === 'parcial'), (p) => p.value);
+        root.querySelector('#list').innerHTML = rows.length
+          ? `<div class="sum-strip"><span>Recebido: <b>${U.money(paid)}</b></span><span>Pendente/parcial: <b>${U.money(pend)}</b></span><span>${rows.length} registro(s)</span></div>${CP.payUI.table(rows)}`
+          : UI.empty({ icon: 'wallet', title: 'Nenhum pagamento encontrado', text: 'Ajuste os filtros ou registre um novo pagamento.', action: '<button class="btn soft" data-act="new">+ Registrar pagamento</button>' });
+      };
+      draw();
+      UI.bindFilters(root, f, draw);
+      root.querySelector('#newPay').onclick = () => A.newPayment();
+      CP.payUI.bind(root);
+      root.querySelector('#list').addEventListener('click', (e) => { if (e.target.closest('[data-act="new"]')) A.newPayment(); });
+    },
+  };
+})();
+
+</script>
+  <script>
+/* Sessões e pacote mensal (pkgUI / sesUI) */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U, UI = CP.UI, esc = U.esc, S = CP.sessions, A = CP.actions;
+  const nm = CP.patients.name;
+
+  function sessionForm(s, prefill) {
+    const vals = s ? { ...s } : { date: U.today(), status: 'agendada', ...prefill };
+    if (vals.slot && !vals.month) vals.month = U.monthKey(vals.date);
+    UI.form({
+      title: s ? 'Editar sessão' : 'Registrar sessão', values: vals, submitText: s ? 'Salvar alterações' : 'Registrar sessão',
+      fields: [
+        { key: 'patientId', label: 'Paciente', type: 'select', required: true, options: UI.opts.patients() },
+        { key: 'date', label: 'Data', type: 'date', required: true },
+        { key: 'time', label: 'Horário', type: 'time' },
+        { key: 'status', label: 'Status', type: 'select', options: S.STATUS },
+        { key: 'slot', label: 'Sessão do pacote mensal', type: 'select', options: [['', 'Avulsa (fora de pacote)'], ...[1, 2, 3, 4, 5, 6, 7, 8].map((n) => [n, `Sessão ${n}`])] },
+        { key: 'month', label: 'Mês do pacote', type: 'month', showIf: (v) => !!v.slot },
+        { key: 'note', label: 'Observação administrativa', type: 'textarea', hint: 'Sem conteúdo clínico.' },
+      ],
+      extraButtons: s ? [{ label: 'Excluir', cls: 'danger', onClick: (m) => { m.close(); A.deleteSession(s.id); } }] : [],
+      onSubmit: async (v) => {
+        const pat = CP.patients.get(v.patientId);
+        const slot = v.slot ? Number(v.slot) : '';
+        const month = slot ? v.month || U.monthKey(v.date) : '';
+        if (slot && S.all().some((x) => x.id !== (s && s.id) && x.patientId === v.patientId && Number(x.slot) === slot && (x.month || U.monthKey(x.date)) === month)) {
+          throw new Error(`Já existe a Sessão ${slot} deste pacote em ${U.monthLabel(month)}. Edite a existente.`);
+        }
+        await S.save({ ...(s || {}), ...v, slot, month, patientName: pat ? pat.name : '' });
+        UI.toast(s ? 'Sessão atualizada.' : 'Sessão registrada.');
+        CP.App.refresh();
+      },
+    });
+  }
+  A.newSession = (prefill) => sessionForm(null, prefill || {});
+  A.editSession = (id) => { const s = S.get(id); if (s) sessionForm(s); };
+  A.deleteSession = async (id) => {
+    const ok = await UI.confirm({ title: 'Excluir sessão', message: 'Excluir esta sessão do registro?', confirmText: 'Excluir', danger: true });
+    if (!ok) return;
+    await S.remove(id); UI.toast('Sessão excluída.'); CP.App.refresh();
+  };
+
+  CP.sesUI = {
+    table(rows, opts = {}) {
+      return UI.table([
+        { label: 'Data', render: (s) => U.fmtDate(s.date) + (s.time ? ` · ${esc(s.time)}` : '') },
+        ...(opts.hidePatient ? [] : [{ label: 'Paciente', render: (s) => `<strong>${esc(nm(s.patientId, s.patientName))}</strong>` }]),
+        { label: 'Status', render: (s) => UI.sb(s.status, UI.labelOf(S.STATUS, s.status)) },
+        { label: 'Pacote', render: (s) => (s.slot ? `Sessão ${s.slot} · ${esc(U.monthLabel(s.month || U.monthKey(s.date)))}` : 'Avulsa') },
+        { label: 'Observação', render: (s) => esc(s.note || '—') },
+        { label: '', cls: 'act', render: (s) => UI.actions([{ act: 'ses-edit', id: s.id, icon: 'edit', label: 'Editar' }, { act: 'ses-del', id: s.id, icon: 'trash', label: 'Excluir', danger: true }]) },
+      ], rows);
+    },
+    bind(root) { UI.delegate(root, (act, id) => { if (act === 'ses-edit') A.editSession(id); else if (act === 'ses-del') A.deleteSession(id); }); },
+  };
+
+  /* Painel do pacote mensal de uma paciente */
+  CP.pkgUI = {
+    month: U.thisMonth(),
+    mount(el, patientId) {
+      const self = CP.pkgUI;
+      const draw = () => {
+        const p = CP.patients.get(patientId);
+        if (!p) { el.innerHTML = ''; return; }
+        const pk = S.pkg(patientId, self.month);
+        el.innerHTML = `<div class="pkg-top"><div><h3 style="margin:0">Pacote mensal — ${esc(p.name)}</h3><p style="margin:4px 0 0"><strong>${pk.done} de ${pk.size} sessões realizadas</strong> · Pagamento: ${UI.sb(pk.paid ? 'pago' : 'pendente', pk.paid ? 'Pago' : 'Pendente')}</p></div>
+          <div class="head-actions">${UI.monthNav(self.month)}${pk.paid ? '' : `<button class="btn soft sm" data-pk="pay">Registrar pagamento do pacote</button>`}</div></div>
+          ${UI.progress(Math.round(pk.done / pk.size * 100))}
+          <div class="slots">${pk.slots.map(({ n, session: s }) => `<button class="slot ${s && s.status === 'realizada' ? 'done' : ''}" data-pk="slot" data-n="${n}"><h5>Sessão ${n}${s ? UI.sb(s.status, UI.labelOf(S.STATUS, s.status)) : ''}</h5>${s ? `<p>${U.fmtDate(s.date)}${s.time ? ' · ' + esc(s.time) : ''}</p>${s.note ? `<p>${esc(s.note)}</p>` : ''}` : '<p>Sem data — toque para agendar</p>'}</button>`).join('')}</div>`;
+      };
+      draw();
+      el.onclick = (e) => {
+        const nav = e.target.closest('[data-nav]');
+        if (nav) { self.month = U.addMonths(self.month, Number(nav.dataset.nav)); draw(); return; }
+        const b = e.target.closest('[data-pk]'); if (!b) return;
+        const p = CP.patients.get(patientId);
+        if (b.dataset.pk === 'pay') {
+          A.newPayment({ patientId, refType: 'pacote', refMonth: self.month, date: U.today(), status: 'pago', method: p && p.paymentMethod ? p.paymentMethod : 'pix' });
+        } else {
+          const n = Number(b.dataset.n);
+          const s = S.pkg(patientId, self.month).slots.find((x) => x.n === n).session;
+          if (s) A.editSession(s.id);
+          else A.newSession({ patientId, slot: n, month: self.month, date: self.month === U.thisMonth() ? U.today() : self.month + '-01', time: p && p.sessionTime ? p.sessionTime : '' });
+        }
+      };
+    },
+  };
+})();
+
+</script>
+  <script>
+/* Agenda: calendário mensal + pacotes mensais */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U, UI = CP.UI, esc = U.esc, A = CP.actions, E = CP.events;
+  let tab = 'cal', month = U.thisMonth(), sel = U.today(), pkgPatient = '';
+
+  /* ---------- Eventos ---------- */
+  function eventForm(ev, date) {
+    const vals = ev ? { ...ev } : { type: 'sessao', date: date || U.today() };
+    UI.form({
+      title: ev ? 'Editar evento' : 'Adicionar evento', values: vals, submitText: ev ? 'Salvar alterações' : 'Adicionar',
+      fields: [
+        { key: 'type', label: 'Tipo', type: 'select', options: ev ? E.TYPES.filter((t) => t[0] !== 'sessao') : E.TYPES, hint: ev ? '' : 'Eventos do tipo “Sessão” entram no controle de sessões da paciente.' },
+        { key: 'date', label: 'Data', type: 'date', required: true },
+        { key: 'time', label: 'Horário', type: 'time' },
+        { key: 'patientId', label: 'Paciente', type: 'select', options: UI.opts.patients('— nenhuma —') },
+        { key: 'title', label: 'Título', type: 'text', placeholder: 'Opcional', full: true },
+        { key: 'note', label: 'Observação administrativa', type: 'textarea' },
+      ],
+      extraButtons: ev ? [{ label: 'Excluir', cls: 'danger', onClick: async (m) => { const ok = await UI.confirm({ title: 'Excluir evento', message: 'Excluir este evento da agenda?', confirmText: 'Excluir', danger: true }); if (!ok) return; await E.remove(ev.id); m.close(); UI.toast('Evento excluído.'); CP.App.refresh(); } }] : [],
+      onSubmit: async (v) => {
+        if (!ev && v.type === 'sessao') {
+          if (!v.patientId) throw new Error('Selecione a paciente para registrar uma sessão.');
+          const pat = CP.patients.get(v.patientId);
+          await CP.sessions.save({ patientId: v.patientId, patientName: pat ? pat.name : '', date: v.date, time: v.time, status: 'agendada', note: v.note, slot: '', month: '' });
+          UI.toast('Sessão agendada.');
+        } else {
+          await E.save({ ...(ev || {}), ...v });
+          UI.toast(ev ? 'Evento atualizado.' : 'Evento adicionado.');
+        }
+        CP.App.refresh();
+      },
+    });
+  }
+  A.newEvent = (date) => eventForm(null, date);
+  A.editEvent = (id) => { const e = E.get(id); if (e) eventForm(e); };
+
+  function openItem(it) {
+    switch (it.src) {
+      case 'session': return A.editSession(it.id);
+      case 'event': return A.editEvent(it.id);
+      case 'payment': return A.editPayment(it.id);
+      case 'patient': return CP.App.go('pacientes', it.id);
+      case 'expense': return A.editExpense(it.id);
+      case 'followup': return A.editFollowup(it.id);
+      case 'lead': return A.editLead(it.id);
+      default: return null;
+    }
+  }
+
+  /* ---------- Calendário ---------- */
+  function calendar(box) {
+    if (U.monthKey(sel) !== month) sel = U.monthKey(U.today()) === month ? U.today() : month + '-01';
+    const lead = new Date(+month.slice(0, 4), +month.slice(5, 7) - 1, 1).getDay();
+    const map = CP.agenda.monthMap(month);
+    const today = U.today();
+    let cells = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((d) => `<div class="wd">${d}</div>`).join('');
+    for (let i = 0; i < lead; i++) cells += '<div class="day empty"></div>';
+    Object.keys(map).forEach((date) => {
+      const items = map[date];
+      cells += `<button class="day ${date === today ? 'today' : ''} ${date === sel ? 'sel' : ''}" data-date="${date}" aria-label="${U.fmtDate(date)}, ${items.length} item(ns)"><span class="n">${+date.slice(8)}</span>
+        <span class="chips">${items.slice(0, 2).map((it) => `<span class="chip" style="--c:${CP.agenda.COLORS[it.type]}">${esc(it.title)}</span>`).join('')}${items.length > 2 ? `<em>+${items.length - 2}</em>` : ''}</span>
+        <span class="dots">${items.slice(0, 4).map((it) => `<i class="dot" style="--c:${CP.agenda.COLORS[it.type]}"></i>`).join('')}</span></button>`;
+    });
+    const items = map[sel] || [];
+    box.innerHTML = `<div class="head-actions" style="justify-content:space-between;margin-bottom:14px">${UI.monthNav(month)}<button class="btn soft sm" data-today>Hoje</button></div>
+      <div class="cal">${cells}</div>
+      <div class="legend">${E.TYPES.map(([k, l]) => `<span><i class="dot" style="--c:${CP.agenda.COLORS[k]}"></i>${l}</span>`).join('')}</div>
+      <section class="card section"><div class="card-head"><h3>${U.fmtDate(sel)}</h3><button class="btn primary sm" data-add>${UI.icon('plus', 16)} Adicionar evento</button></div>
+      ${items.length ? items.map((it, i) => `<button class="agenda-item ${it.status === 'cancelada' ? 'cancelled' : ''}" data-i="${i}"><i class="dot" style="--c:${CP.agenda.COLORS[it.type]}"></i><div><strong>${esc(it.title)}</strong><small>${esc(UI.labelOf(E.TYPES, it.type))}${it.time ? ' · ' + esc(it.time) : ''}${it.status ? ' · ' + esc(UI.labelOf(CP.sessions.STATUS, it.status)) : ''}</small></div></button>`).join('')
+        : UI.empty({ icon: 'calendar', title: 'Nada neste dia', text: 'Use “Adicionar evento” para agendar uma sessão, avaliação ou lembrete.' })}</section>`;
+    box.onclick = (e) => {
+      const nav = e.target.closest('[data-nav]'); if (nav) { month = U.addMonths(month, Number(nav.dataset.nav)); return calendar(box); }
+      if (e.target.closest('[data-today]')) { month = U.thisMonth(); sel = U.today(); return calendar(box); }
+      const d = e.target.closest('[data-date]'); if (d) { sel = d.dataset.date; return calendar(box); }
+      if (e.target.closest('[data-add]')) return A.newEvent(sel);
+      const it = e.target.closest('[data-i]'); if (it) openItem(items[Number(it.dataset.i)]);
+    };
+  }
+
+  /* ---------- Pacotes mensais ---------- */
+  function packages(box) {
+    const pk = U.sortBy(CP.patients.all().filter((p) => p.paymentModel === 'pacote_mensal'), (p) => U.norm(p.name));
+    if (!pk.length) { box.innerHTML = UI.empty({ icon: 'calendar', title: 'Nenhuma paciente com pacote mensal', text: 'Defina a modalidade “Pacote mensal” no cadastro da paciente.' }); return; }
+    if (!pk.some((p) => p.id === pkgPatient)) pkgPatient = pk[0].id;
+    const m = CP.pkgUI.month;
+    box.innerHTML = `<div class="filters"><label class="f"><span>Paciente</span><select id="pkSel">${pk.map((p) => `<option value="${p.id}" ${p.id === pkgPatient ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label></div>
+      <section class="card" id="pkgBox"></section>
+      <section class="card section"><h3>Visão geral — ${esc(U.monthLabel(m))}</h3>${UI.table([
+        { label: 'Paciente', render: (p) => `<strong>${esc(p.name)}</strong>` },
+        { label: 'Sessões', render: (p) => { const k = CP.sessions.pkg(p.id, m); return `${k.done} de ${k.size} realizadas`; } },
+        { label: 'Pagamento', render: (p) => { const ok = CP.sessions.pkg(p.id, m).paid; return UI.sb(ok ? 'pago' : 'pendente', ok ? 'Pago' : 'Pendente'); } },
+      ], pk)}</section>`;
+    CP.pkgUI.mount(box.querySelector('#pkgBox'), pkgPatient);
+    box.querySelector('#pkSel').onchange = (e) => { pkgPatient = e.target.value; packages(box); };
+    // ao trocar o mês dentro do painel, atualiza também a visão geral
+    box.querySelector('#pkgBox').addEventListener('click', (e) => { if (e.target.closest('[data-nav]')) setTimeout(() => packages(box), 0); });
+  }
+
+  CP.views.agenda = {
+    render(root) {
+      root.innerHTML = UI.pageHead('Agenda', 'Sessões, pagamentos, avaliações, vencimentos e follow-ups.', `<button class="btn primary" id="addEv">${UI.icon('plus', 18)} Adicionar evento</button>`) +
+        UI.tabs([['cal', 'Calendário'], ['pkg', 'Pacotes mensais']], tab) + '<div id="box"></div>';
+      const box = root.querySelector('#box');
+      if (tab === 'cal') calendar(box); else packages(box);
+      UI.bindTabs(root, (t) => { tab = t; CP.views.agenda.render(root); });
+      root.querySelector('#addEv').onclick = () => A.newEvent(tab === 'cal' ? sel : U.today());
+    },
+  };
+})();
+
+</script>
+  <script>
+/* Recibos + Controle Carnê-Leão */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U, UI = CP.UI, esc = U.esc, Rc = CP.receipts, Pay = CP.payments, A = CP.actions;
+  const nm = CP.patients.name;
+  const cf = { status: '', month: '', patient: '' };
+
+  /* HTML do recibo (somente informações fornecidas — nada fiscal é inventado) */
+  function receiptHtml(r) {
+    const s = CP.settings.data;
+    return `<div class="receipt">
+      <header>${s.logo ? `<img class="r-logo" src="${esc(s.logo)}" alt="">` : ''}<div><h1>${esc(s.name)}</h1>
+        <p>${esc(s.profession)}${s.crp ? ' · CRP ' + esc(s.crp) : ''}</p>
+        ${s.cpf ? `<p>CPF/CNPJ: ${esc(s.cpf)}</p>` : ''}${s.address ? `<p>${esc(s.address)}</p>` : ''}
+        ${s.phone || s.email ? `<p>${[s.phone, s.email].filter(Boolean).map(esc).join(' · ')}</p>` : ''}</div></header>
+      <h2>RECIBO <span>Nº ${esc(r.number)}</span></h2>
+      <div class="r-val">${U.money(r.value)}</div>
+      <p>Recebi de <strong>${esc(r.payerName)}</strong> a quantia de <strong>${U.money(r.value)}</strong>${U.extenso(r.value) ? ` (${esc(U.extenso(r.value))})` : ''}, referente a ${esc(r.description || 'serviços de psicologia')}.</p>
+      <p>Data do pagamento: ${U.fmtDate(r.date)}</p>
+      <div class="sign">${esc(s.name)}<br>${esc(s.profession)}${s.crp ? ' — CRP ' + esc(s.crp) : ''}</div>
+      <footer>Emitido em ${U.fmtDate(r.issueDate)}${s.receiptNote ? ' · ' + esc(s.receiptNote) : ''}</footer></div>`;
+  }
+
+  function preview(r) {
+    const m = UI.modal({ title: `Recibo Nº ${r.number}`, wide: true, footer: true, body: receiptHtml(r) });
+    m.foot.innerHTML = '<span class="spacer"></span><button class="btn ghost" data-c>Fechar</button><button class="btn primary" data-p>Imprimir / salvar como PDF</button>';
+    m.foot.querySelector('[data-c]').onclick = () => m.close();
+    m.foot.querySelector('[data-p]').onclick = () => UI.print(receiptHtml(r));
+  }
+  A.viewReceipt = (id) => { const r = Rc.get(id); if (r) preview(r); };
+
+  function receiptForm(pay) {
+    const vals = pay
+      ? { patientId: pay.patientId || '', payerName: nm(pay.patientId, pay.patientName) === '—' ? '' : nm(pay.patientId, pay.patientName), value: pay.value, date: pay.date, description: Rc.defaultDescription(pay), issueDate: U.today() }
+      : { issueDate: U.today(), date: U.today(), description: 'Serviços de psicologia' };
+    UI.form({
+      title: pay ? 'Gerar recibo' : 'Novo recibo', values: vals, submitText: 'Gerar recibo',
+      fields: [
+        { key: 'patientId', label: 'Paciente cadastrada', type: 'select', options: UI.opts.patients('— nome digitado abaixo —') },
+        { key: 'payerName', label: 'Recebido de (nome)', type: 'text', required: true },
+        { key: 'value', label: 'Valor (R$)', type: 'money', required: true },
+        { key: 'date', label: 'Data do pagamento', type: 'date', required: true },
+        { key: 'issueDate', label: 'Data de emissão', type: 'date', required: true },
+        { key: 'description', label: 'Descrição', type: 'textarea', required: true, hint: 'Ex.: sessão de psicoterapia, pacote mensal, avaliação.' },
+      ],
+      onChange: (k, v, set) => { if (k === 'patientId' && v.patientId) set('payerName', nm(v.patientId)); },
+      onSubmit: async (v) => {
+        if (!(Number(v.value) > 0)) throw new Error('Informe um valor maior que zero.');
+        const rec = await Rc.issue({ paymentId: pay ? pay.id : '', patientId: v.patientId, payerName: v.payerName, value: Number(v.value), date: v.date, description: v.description, issueDate: v.issueDate });
+        UI.toast('Recibo gerado.');
+        CP.App.refresh();
+        setTimeout(() => preview(rec), 250);
+      },
+    });
+  }
+  A.issueReceipt = (paymentId) => { const p = Pay.get(paymentId); if (p) receiptForm(p); };
+  A.newReceipt = () => receiptForm(null);
+
+  /* ---------- Carnê-Leão ---------- */
+  function carneForm(p) {
+    UI.form({
+      title: 'Registrar no Carnê-Leão', values: { carneDate: U.today() }, submitText: 'Marcar como registrado',
+      fields: [{ key: 'carneDate', label: 'Data do registro', type: 'date', required: true }],
+      onSubmit: async (v) => { await Pay.save({ ...p, carneLeao: true, carneDate: v.carneDate }); UI.toast('Registro no Carnê-Leão salvo.'); CP.App.refresh(); },
+    });
+  }
+
+  function carneTab(box) {
+    const all = Pay.all().filter((p) => p.status === 'pago');
+    const waiting = all.filter((p) => !p.carneLeao);
+    const rows = U.sortBy(all.filter((p) => {
+      if (cf.status === 'registrado' && !p.carneLeao) return false;
+      if (cf.status === 'pendente' && p.carneLeao) return false;
+      if (cf.month && U.monthKey(p.date) !== cf.month) return false;
+      if (cf.patient && p.patientId !== cf.patient) return false;
+      return true;
+    }), (p) => p.date, -1);
+    box.innerHTML = `<section class="card"><div class="card-head"><h3>Controle Carnê-Leão</h3></div>
+      <div class="sum-strip"><span>Pagamentos aguardando registro: <b>${waiting.length}</b></span><span>Valor: <b>${U.money(U.sum(waiting, (p) => p.value))}</b></span></div>
+      ${UI.filters([
+        { key: 'status', label: 'Situação', options: [['', 'Todos'], ['pendente', 'Pendente'], ['registrado', 'Registrado']] },
+        { key: 'month', label: 'Mês', type: 'month' },
+        { key: 'patient', label: 'Paciente', options: UI.opts.patients('Todas') },
+      ], cf)}<div id="clist"></div></section>`;
+    const draw = () => {
+      const filtered = U.sortBy(all.filter((p) => (!cf.status || (cf.status === 'registrado') === !!p.carneLeao) && (!cf.month || U.monthKey(p.date) === cf.month) && (!cf.patient || p.patientId === cf.patient)), (p) => p.date, -1);
+      box.querySelector('#clist').innerHTML = filtered.length ? UI.table([
+        { label: 'Data', render: (p) => U.fmtDate(p.date) },
+        { label: 'Paciente', render: (p) => `<strong>${esc(nm(p.patientId, p.patientName))}</strong>` },
+        { label: 'Valor', cls: 'num', render: (p) => U.money(p.value) },
+        { label: 'Referente', render: (p) => esc(UI.labelOf(Pay.REF, p.refType)) },
+        { label: 'Recibo', render: (p) => UI.sb(p.receiptIssued ? 'sim' : 'nao', p.receiptIssued ? 'Emitido' : 'Pendente') },
+        { label: 'Carnê-Leão', render: (p) => UI.sb(p.carneLeao ? 'sim' : 'nao', p.carneLeao ? 'Sim' : 'Não') },
+        { label: 'Data do registro', render: (p) => U.fmtDate(p.carneDate) },
+        { label: 'Status', render: (p) => UI.sb(p.carneLeao ? 'ok' : 'pendente', p.carneLeao ? 'Registrado' : 'Pendente') },
+        { label: '', cls: 'act', render: (p) => `<div class="row-actions">${p.carneLeao ? `<button class="btn ghost sm" data-act="carne-undo" data-id="${p.id}">Desfazer</button>` : `<button class="btn soft sm" data-act="carne-reg" data-id="${p.id}">Registrar</button>`}${p.receiptIssued ? '' : `<button class="icon-btn" data-act="pay-receipt" data-id="${p.id}" title="Gerar recibo" aria-label="Gerar recibo">${UI.icon('receipt', 17)}</button>`}</div>` },
+      ], filtered) : UI.empty({ icon: 'wallet', title: 'Nenhum pagamento neste filtro', text: 'Somente pagamentos com status “pago” aparecem aqui.' });
+    };
+    void rows;
+    draw();
+    UI.bindFilters(box, cf, draw);
+    UI.delegate(box, async (act, id) => {
+      const p = Pay.get(id); if (!p) return;
+      if (act === 'carne-reg') carneForm(p);
+      else if (act === 'carne-undo') { await Pay.save({ ...p, carneLeao: false, carneDate: '' }); UI.toast('Registro desfeito.'); CP.App.refresh(); }
+      else if (act === 'pay-receipt') A.issueReceipt(id);
+    });
+  }
+
+  /* ---------- Tela ---------- */
+  function receiptsTab(box) {
+    const list = U.sortBy(Rc.all(), (r) => r.issueDate + r.number, -1);
+    const waiting = U.sortBy(Pay.awaitingReceipt(), (p) => p.date, -1);
+    box.innerHTML = `${waiting.length ? `<section class="card"><h3>Pagamentos pagos sem recibo (${waiting.length})</h3>${waiting.slice(0, 8).map((p) => `<div class="list-row"><div><strong>${esc(nm(p.patientId, p.patientName))}</strong><small>${U.fmtDate(p.date)} · ${esc(UI.labelOf(Pay.REF, p.refType))}</small></div><div style="display:flex;gap:12px;align-items:center"><strong>${U.money(p.value)}</strong><button class="btn soft sm" data-act="pay-receipt" data-id="${p.id}">Gerar recibo</button></div></div>`).join('')}</section>` : ''}
+      <section class="card section"><h3>Recibos emitidos</h3>${list.length ? UI.table([
+        { label: 'Nº', render: (r) => `<strong>${esc(r.number)}</strong>` },
+        { label: 'Emissão', render: (r) => U.fmtDate(r.issueDate) },
+        { label: 'Paciente', render: (r) => esc(r.payerName) },
+        { label: 'Descrição', render: (r) => esc(r.description) },
+        { label: 'Valor', cls: 'num', render: (r) => U.money(r.value) },
+        { label: '', cls: 'act', render: (r) => UI.actions([{ act: 'rc-view', id: r.id, icon: 'print', label: 'Ver / imprimir' }, { act: 'rc-del', id: r.id, icon: 'trash', label: 'Excluir', danger: true }]) },
+      ], list) : UI.empty({ icon: 'receipt', title: 'Nenhum recibo emitido', text: 'Gere recibos a partir de pagamentos pagos ou crie um recibo avulso.', action: '<button class="btn soft" data-act="rc-new">+ Novo recibo</button>' })}</section>`;
+    UI.delegate(box, async (act, id) => {
+      if (act === 'pay-receipt') A.issueReceipt(id);
+      else if (act === 'rc-view') A.viewReceipt(id);
+      else if (act === 'rc-new') A.newReceipt();
+      else if (act === 'rc-del') {
+        const ok = await UI.confirm({ title: 'Excluir recibo', message: 'Excluir este recibo? O pagamento voltará a constar como “sem recibo”.', confirmText: 'Excluir', danger: true });
+        if (!ok) return;
+        await Rc.removeWithUnlink(id); UI.toast('Recibo excluído.'); CP.App.refresh();
+      }
+    });
+  }
+
+  CP.views.recibos = {
+    tab: 'recibos',
+    render(root) {
+      const self = CP.views.recibos;
+      root.innerHTML = UI.pageHead('Recibos', 'Emissão de recibos e controle do Carnê-Leão.', `<button class="btn primary" id="newRc">${UI.icon('plus', 18)} Novo recibo</button>`) +
+        UI.tabs([['recibos', 'Recibos', Rc.all().length], ['carne', 'Carnê-Leão', Pay.awaitingCarne().length]], self.tab) + '<div id="box"></div>';
+      const box = root.querySelector('#box');
+      if (self.tab === 'carne') carneTab(box); else receiptsTab(box);
+      UI.bindTabs(root, (t) => { self.tab = t; CP.views.recibos.render(root); });
+      root.querySelector('#newRc').onclick = () => A.newReceipt();
+    },
+  };
+  CP.receiptHtml = receiptHtml;
+})();
+
+</script>
+  <script>
+/* Financeiro: relatório mensal e anual (com impressão) */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U, UI = CP.UI, esc = U.esc, F = CP.finance;
+  let tab = 'mensal', month = U.thisMonth(), year = U.today().slice(0, 4);
+  const nm = CP.patients.name;
+
+  function monthHtml(m) {
+    const s = F.monthSummary(m);
+    const stats = [
+      ['Receita recebida', U.money(s.received)], ['Receita prevista', U.money(s.expected)], ['A receber', U.money(s.toReceive)],
+      ['Despesas (pagas)', U.money(s.expensesPaid)], ['Lucro', U.money(s.profit)], ['Pacientes atendidas', s.servedCount],
+      ['Sessões realizadas', s.sessionsDone], ['Ticket médio', s.ticket == null ? '—' : U.money(s.ticket)],
+    ];
+    const cats = Object.entries(s.byCategory).sort((a, b) => b[1] - a[1]);
+    return `<div class="grid g-stats">${stats.map(([l, v]) => UI.stat({ label: l, value: v })).join('')}</div>
+      <section class="card section"><h3>Receita por paciente</h3>${s.perPatient.length ? UI.table([
+        { label: 'Paciente', render: (r) => `<strong>${esc(r.name)}</strong>` },
+        { label: 'Recebido', cls: 'num', render: (r) => U.money(r.paid) },
+        { label: 'Previsto', cls: 'num', render: (r) => U.money(r.expected) },
+        { label: 'A receber', cls: 'num', render: (r) => U.money(r.pending) },
+      ], s.perPatient) : '<p>Nenhuma receita ou valor previsto neste mês.</p>'}</section>
+      <section class="card section"><h3>Receita por produto</h3>${s.byProduct.length ? UI.table([
+        { label: 'Produto', render: (r) => `<strong>${esc(r.name)}</strong>` },
+        { label: 'Vendas', cls: 'num', render: (r) => r.qty },
+        { label: 'Receita', cls: 'num', render: (r) => U.money(r.revenue) },
+      ], s.byProduct) : '<p>Nenhuma venda paga neste mês.</p>'}</section>
+      <section class="card section"><h3>Despesas pagas por categoria</h3>${cats.length ? UI.table([
+        { label: 'Categoria', render: (r) => esc(CP.expenses.cap(r[0])) }, { label: 'Valor', cls: 'num', render: (r) => U.money(r[1]) },
+      ], cats) : '<p>Nenhuma despesa paga neste mês.</p>'}</section>
+      <section class="card section"><h3>Pendências</h3>
+        <p><strong>Pagamentos pendentes (${s.pendingPayments.length}):</strong> ${s.pendingPayments.length ? s.pendingPayments.map((p) => `${esc(nm(p.patientId, p.patientName))} ${U.money(p.value)} (${U.fmtDate(p.date)})`).join('; ') : 'nenhum'}</p>
+        <p><strong>Recibos pendentes (${s.receiptsPending.length}):</strong> ${s.receiptsPending.length ? s.receiptsPending.map((p) => `${esc(nm(p.patientId, p.patientName))} ${U.money(p.value)}`).join('; ') : 'nenhum'}</p>
+        <p><strong>Carnê-Leão pendente (${s.carnePending.length}):</strong> ${s.carnePending.length ? s.carnePending.map((p) => `${esc(nm(p.patientId, p.patientName))} ${U.money(p.value)}`).join('; ') : 'nenhum'}</p></section>`;
+  }
+
+  function yearHtml(y) {
+    const s = F.yearSummary(y);
+    const stats = [
+      ['Faturamento anual', U.money(s.revenue)], ['Despesas anuais', U.money(s.expenses)], ['Lucro anual', U.money(s.profit)],
+      ['Média mensal', s.avg == null ? '—' : U.money(s.avg), s.avg == null ? '' : `Sobre ${s.activeMonths} mês(es) com movimento`],
+      ['Melhor mês', s.best ? U.money(s.best.received) : '—', s.best ? U.monthLabel(s.best.month) : ''],
+      ['Pior mês', s.worst ? U.money(s.worst.received) : '—', s.worst ? U.monthLabel(s.worst.month) : 'Precisa de 2 meses com receita'],
+      ['Pacientes atendidas', s.served], ['Sessões realizadas', s.sessions], ['Avaliações', s.evaluations],
+      ['Vendas de produtos', s.salesCount, U.money(s.salesRevenue)],
+    ];
+    return `<div class="grid g-stats">${stats.map(([l, v, sub]) => UI.stat({ label: l, value: v, sub })).join('')}</div>
+      <section class="card section"><h3>Mês a mês</h3>${UI.table([
+        { label: 'Mês', render: (r) => `<strong>${esc(U.MONTHS[+r.month.slice(5) - 1])}</strong>` },
+        { label: 'Recebido', cls: 'num', render: (r) => U.money(r.received) },
+        { label: 'Despesas', cls: 'num', render: (r) => U.money(r.expensesPaid) },
+        { label: 'Lucro', cls: 'num', render: (r) => U.money(r.profit) },
+      ], s.months)}</section>`;
+  }
+
+  CP.views.financeiro = {
+    render(root) {
+      const years = UI.opts.years();
+      if (!years.includes(year)) years.push(year);
+      root.innerHTML = UI.pageHead('Relatório financeiro', 'Cálculos feitos somente com o que foi registrado.', `<button class="btn soft" id="prt">${UI.icon('print', 18)} Imprimir</button>`) +
+        UI.tabs([['mensal', 'Relatório mensal'], ['anual', 'Relatório anual']], tab) +
+        `<div style="margin-bottom:18px">${tab === 'mensal' ? UI.monthNav(month) : `<label class="f" style="max-width:180px"><span>Ano</span><select id="ySel">${years.sort().reverse().map((y) => `<option ${y === year ? 'selected' : ''}>${y}</option>`).join('')}</select></label>`}</div><div id="rep"></div>`;
+      const rep = root.querySelector('#rep');
+      const html = tab === 'mensal' ? monthHtml(month) : yearHtml(year);
+      rep.innerHTML = html;
+      UI.bindTabs(root, (t) => { tab = t; CP.views.financeiro.render(root); });
+      const ys = root.querySelector('#ySel'); if (ys) ys.onchange = () => { year = ys.value; CP.views.financeiro.render(root); };
+      root.querySelectorAll('[data-nav]').forEach((b) => b.addEventListener('click', () => { month = U.addMonths(month, Number(b.dataset.nav)); CP.views.financeiro.render(root); }));
+      root.querySelector('#prt').onclick = () => {
+        const title = tab === 'mensal' ? `Relatório financeiro — ${U.monthLabel(month)}` : `Relatório financeiro anual — ${year}`;
+        UI.print(`<div class="report"><h1>${esc(title)}</h1><p>${esc(CP.settings.get('name'))} · ${esc(CP.settings.get('profession'))}${CP.settings.get('crp') ? ' · CRP ' + esc(CP.settings.get('crp')) : ''}</p>${html}<p style="font-size:.8rem;margin-top:18px">Gerado em ${U.fmtDate(U.today())}. Documento administrativo e financeiro.</p></div>`);
+      };
+    },
+  };
+})();
+
+</script>
+  <script>
+/* Despesas e despesas fixas */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U, UI = CP.UI, esc = U.esc, E = CP.expenses, Fx = CP.fixed, A = CP.actions;
+  let tab = 'lanc';
+  const f = { month: U.thisMonth(), year: '', category: '', status: '' };
+
+  function expenseForm(x, prefill) {
+    UI.form({
+      title: x ? 'Editar despesa' : 'Registrar despesa', submitText: x ? 'Salvar alterações' : 'Registrar despesa',
+      values: x || { date: U.today(), status: 'pago', periodicity: 'unica', category: 'outros', ...prefill },
+      fields: [
+        { key: 'name', label: 'Nome', type: 'text', required: true, full: true },
+        { key: 'category', label: 'Categoria', type: 'select', options: E.catOptions() },
+        { key: 'value', label: 'Valor (R$)', type: 'money', required: true },
+        { key: 'date', label: 'Data', type: 'date', required: true },
+        { key: 'periodicity', label: 'Periodicidade', type: 'select', options: E.PERIOD },
+        { key: 'status', label: 'Status', type: 'select', options: E.STATUS, hint: 'Só despesas “pagas” entram no cálculo do lucro.' },
+        { key: 'note', label: 'Observação', type: 'textarea' },
+      ],
+      extraButtons: x ? [{ label: 'Excluir', cls: 'danger', onClick: (m) => { m.close(); A.deleteExpense(x.id); } }] : [],
+      onSubmit: async (v) => {
+        if (!(Number(v.value) > 0)) throw new Error('Informe um valor maior que zero.');
+        await E.save({ ...(x || {}), ...v, value: Number(v.value) });
+        UI.toast(x ? 'Despesa atualizada.' : 'Despesa registrada.'); CP.App.refresh();
+      },
+    });
+  }
+  A.newExpense = (prefill) => expenseForm(null, prefill || {});
+  A.editExpense = (id) => { const x = E.get(id); if (x) expenseForm(x); };
+  A.deleteExpense = async (id) => {
+    const ok = await UI.confirm({ title: 'Excluir despesa', message: 'Excluir esta despesa?', confirmText: 'Excluir', danger: true });
+    if (!ok) return; await E.remove(id); UI.toast('Despesa excluída.'); CP.App.refresh();
+  };
+
+  function fixedForm(x, prefill) {
+    UI.form({
+      title: x ? 'Editar despesa fixa' : 'Nova despesa fixa', submitText: x ? 'Salvar alterações' : 'Cadastrar',
+      values: x || { periodicity: 'mensal', status: 'ativa', category: 'plataformas', ...prefill },
+      fields: [
+        { key: 'name', label: 'Nome', type: 'text', required: true, full: true, hint: 'Ex.: Claude, Canva, Internet, Hospedagem, Domínio.' },
+        { key: 'category', label: 'Categoria', type: 'select', options: E.catOptions() },
+        { key: 'value', label: 'Valor (R$)', type: 'money', required: true },
+        { key: 'dueDay', label: 'Dia do vencimento', type: 'number', min: 1, max: 31 },
+        { key: 'periodicity', label: 'Periodicidade', type: 'select', options: Fx.PERIOD },
+        { key: 'dueMonth', label: 'Mês do vencimento (anuais)', type: 'select', options: [['', '—'], ...U.MONTHS.map((m, i) => [i + 1, m])], showIf: (v) => v.periodicity === 'anual' },
+        { key: 'status', label: 'Status', type: 'select', options: Fx.STATUS },
+      ],
+      extraButtons: x ? [{ label: 'Excluir', cls: 'danger', onClick: (m) => { m.close(); A.deleteFixed(x.id); } }] : [],
+      onSubmit: async (v) => {
+        if (!(Number(v.value) > 0)) throw new Error('Informe um valor maior que zero.');
+        if (v.periodicity === 'anual' && !v.dueMonth) throw new Error('Informe o mês de vencimento da despesa anual.');
+        await Fx.save({ ...(x || {}), ...v, value: Number(v.value) });
+        UI.toast(x ? 'Despesa fixa atualizada.' : 'Despesa fixa cadastrada.'); CP.App.refresh();
+      },
+    });
+  }
+  A.newFixed = (prefill) => fixedForm(null, prefill || {});
+  A.editFixed = (id) => { const x = Fx.get(id); if (x) fixedForm(x); };
+  A.deleteFixed = async (id) => {
+    const ok = await UI.confirm({ title: 'Excluir despesa fixa', message: 'Excluir esta despesa fixa? Lançamentos já gerados permanecem.', confirmText: 'Excluir', danger: true });
+    if (!ok) return; await Fx.remove(id); UI.toast('Despesa fixa excluída.'); CP.App.refresh();
+  };
+
+  function launchTab(root, box) {
+    const draw = () => {
+      const rows = U.sortBy(E.all().filter((x) => {
+        if (f.month && U.monthKey(x.date) !== f.month) return false;
+        if (!f.month && f.year && U.yearOf(x.date) !== f.year) return false;
+        if (f.category && x.category !== f.category) return false;
+        if (f.status && x.status !== f.status) return false;
+        return true;
+      }), (x) => x.date, -1);
+      const paid = U.sum(rows.filter((x) => x.status === 'pago'), (x) => x.value), pend = U.sum(rows.filter((x) => x.status === 'pendente'), (x) => x.value);
+      box.querySelector('#elist').innerHTML = rows.length ? `<div class="sum-strip"><span>Pagas: <b>${U.money(paid)}</b></span><span>Pendentes: <b>${U.money(pend)}</b></span><span>${rows.length} lançamento(s)</span></div>` + UI.table([
+        { label: 'Data', render: (x) => U.fmtDate(x.date) },
+        { label: 'Nome', render: (x) => `<strong>${esc(x.name)}</strong>` },
+        { label: 'Categoria', render: (x) => esc(E.cap(x.category)) },
+        { label: 'Periodicidade', render: (x) => esc(UI.labelOf(E.PERIOD, x.periodicity)) },
+        { label: 'Valor', cls: 'num', render: (x) => U.money(x.value) },
+        { label: 'Status', render: (x) => UI.sb(x.status, UI.labelOf(E.STATUS, x.status)) },
+        { label: '', cls: 'act', render: (x) => UI.actions([
+          ...(x.status === 'pendente' ? [{ act: 'ex-pay', id: x.id, icon: 'check', label: 'Marcar como paga' }] : []),
+          { act: 'ex-dup', id: x.id, icon: 'copy', label: 'Duplicar para o próximo mês' },
+          { act: 'ex-edit', id: x.id, icon: 'edit', label: 'Editar' }, { act: 'ex-del', id: x.id, icon: 'trash', label: 'Excluir', danger: true }]) },
+      ], rows) : UI.empty({ icon: 'tag', title: 'Nenhuma despesa neste filtro', text: 'Registre uma despesa ou lance as despesas fixas do mês.', action: '<button class="btn soft" data-act="ex-new">+ Despesa</button>' });
+    };
+    box.innerHTML = `${UI.filters([
+      { key: 'month', label: 'Mês', type: 'month' }, { key: 'year', label: 'Ano', options: UI.opts.list(UI.opts.years().map((y) => [y, y]), 'Todos') },
+      { key: 'category', label: 'Categoria', options: UI.opts.list(E.catOptions(), 'Todas') }, { key: 'status', label: 'Status', options: UI.opts.list(E.STATUS, 'Todos') },
+    ], f)}<div id="elist"></div>`;
+    draw();
+    UI.bindFilters(box, f, draw);
+    UI.delegate(box, async (act, id) => {
+      const x = E.get(id);
+      if (act === 'ex-new') A.newExpense();
+      else if (act === 'ex-edit') A.editExpense(id);
+      else if (act === 'ex-del') A.deleteExpense(id);
+      else if (act === 'ex-pay' && x) { await E.save({ ...x, status: 'pago' }); UI.toast('Despesa marcada como paga.'); CP.App.refresh(); }
+      else if (act === 'ex-dup' && x) { const d = U.addMonths(U.monthKey(x.date), 1); const day = Math.min(+x.date.slice(8, 10), U.daysInMonth(d)); await E.save({ ...x, id: undefined, createdAt: undefined, date: `${d}-${U.pad(day)}`, status: 'pendente' }); UI.toast('Despesa duplicada para o próximo mês.'); CP.App.refresh(); }
+    });
+  }
+
+  function fixedTab(box) {
+    const list = U.sortBy(Fx.all(), (x) => U.norm(x.name));
+    const m = f.month || U.thisMonth();
+    const monthly = U.sum(list.filter((x) => x.status === 'ativa' && x.periodicity === 'mensal'), (x) => x.value);
+    const have = Fx.PRESETS.map((n) => n);
+    box.innerHTML = `<section class="card"><div class="card-head"><h3>Despesas fixas</h3><div class="head-actions"><button class="btn soft sm" data-act="fx-gen">Lançar fixas de ${esc(U.monthLabel(m))}</button><button class="btn primary sm" data-act="fx-new">${UI.icon('plus', 16)} Despesa fixa</button></div></div>
+      <div class="sum-strip"><span>Total mensal das fixas ativas: <b>${U.money(monthly)}</b></span></div>
+      <p style="margin:0 0 12px">Cadastro rápido: ${have.map((n) => `<button class="btn ghost sm" data-act="fx-preset" data-id="${esc(n)}">${esc(n)}</button>`).join(' ')}</p>
+      ${list.length ? UI.table([
+        { label: 'Nome', render: (x) => `<strong>${esc(x.name)}</strong>` }, { label: 'Categoria', render: (x) => esc(E.cap(x.category)) },
+        { label: 'Valor', cls: 'num', render: (x) => U.money(x.value) },
+        { label: 'Vencimento', render: (x) => (x.dueDay ? `Dia ${x.dueDay}${x.periodicity === 'anual' && x.dueMonth ? ' de ' + U.MONTHS[x.dueMonth - 1] : ''}` : '—') },
+        { label: 'Periodicidade', render: (x) => esc(UI.labelOf(Fx.PERIOD, x.periodicity)) },
+        { label: 'Status', render: (x) => UI.sb(x.status === 'ativa' ? 'ativa' : 'inativa', UI.labelOf(Fx.STATUS, x.status)) },
+        { label: '', cls: 'act', render: (x) => UI.actions([{ act: 'fx-edit', id: x.id, icon: 'edit', label: 'Editar' }, { act: 'fx-del', id: x.id, icon: 'trash', label: 'Excluir', danger: true }]) },
+      ], list) : UI.empty({ icon: 'tag', title: 'Nenhuma despesa fixa cadastrada', text: 'Cadastre assinaturas e contas recorrentes. Depois lance-as no mês com um clique.' })}</section>`;
+    UI.delegate(box, async (act, id) => {
+      if (act === 'fx-new') A.newFixed();
+      else if (act === 'fx-preset') A.newFixed({ name: id });
+      else if (act === 'fx-edit') A.editFixed(id);
+      else if (act === 'fx-del') A.deleteFixed(id);
+      else if (act === 'fx-gen') { const n = await Fx.generate(m); UI.toast(n ? `${n} despesa(s) lançada(s) como pendente(s).` : 'Nenhuma despesa nova para lançar neste mês.'); CP.App.refresh(); }
+    });
+  }
+
+  CP.views.despesas = {
+    render(root) {
+      root.innerHTML = UI.pageHead('Despesas', 'Controle de gastos do consultório.', `<button class="btn primary" id="newEx">${UI.icon('plus', 18)} Despesa</button>`) +
+        UI.tabs([['lanc', 'Lançamentos', E.all().length], ['fixas', 'Despesas fixas', Fx.all().length]], tab) + '<div id="box"></div>';
+      const box = root.querySelector('#box');
+      if (tab === 'lanc') launchTab(root, box); else fixedTab(box);
+      UI.bindTabs(root, (t) => { tab = t; CP.views.despesas.render(root); });
+      root.querySelector('#newEx').onclick = () => (tab === 'fixas' ? A.newFixed() : A.newExpense());
+    },
+  };
+})();
+
+</script>
+  <script>
+/* Produtos e vendas */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U, UI = CP.UI, esc = U.esc, P = CP.products, S = CP.sales, A = CP.actions;
+  let tab = 'prod';
+  const sf = { month: '', product: '', status: '' };
+
+  function productForm(p) {
+    UI.form({
+      title: p ? 'Editar produto' : 'Novo produto', submitText: p ? 'Salvar alterações' : 'Cadastrar produto', values: p || { status: 'ativo' },
+      fields: [
+        { key: 'name', label: 'Nome', type: 'text', required: true, full: true },
+        { key: 'description', label: 'Descrição', type: 'textarea' },
+        { key: 'price', label: 'Preço (R$)', type: 'money', required: true },
+        { key: 'cost', label: 'Custo (R$)', type: 'money', hint: 'Custo por unidade vendida (opcional).' },
+        { key: 'link', label: 'Link de venda', type: 'url', placeholder: 'https://', full: true },
+        { key: 'status', label: 'Status', type: 'select', options: P.STATUS },
+      ],
+      extraButtons: p ? [{ label: 'Excluir', cls: 'danger', onClick: (m) => { m.close(); A.deleteProduct(p.id); } }] : [],
+      onSubmit: async (v) => { await P.save({ ...(p || {}), ...v, price: Number(v.price) || 0, cost: Number(v.cost) || 0 }); UI.toast(p ? 'Produto atualizado.' : 'Produto cadastrado.'); CP.App.refresh(); },
+    });
+  }
+  A.newProduct = () => productForm(null);
+  A.editProduct = (id) => { const p = P.get(id); if (p) productForm(p); };
+  A.deleteProduct = async (id) => {
+    const ok = await UI.confirm({ title: 'Excluir produto', message: 'Excluir este produto? As vendas já registradas permanecem.', confirmText: 'Excluir', danger: true });
+    if (!ok) return; await P.remove(id); UI.toast('Produto excluído.'); CP.App.refresh();
+  };
+
+  function saleForm(s, prefill) {
+    if (!P.all().length) { UI.toast('Cadastre um produto antes de registrar uma venda.', 'err'); return A.newProduct(); }
+    let auto = null;
+    const vals = s || { date: U.today(), status: 'pago', method: 'pix', ...prefill };
+    if (!s && vals.productId && vals.value == null) { const pr = P.get(vals.productId); if (pr) { vals.value = pr.price; auto = pr.price; } }
+    UI.form({
+      title: s ? 'Editar venda' : 'Registrar venda', submitText: s ? 'Salvar alterações' : 'Registrar venda', values: vals,
+      fields: [
+        { key: 'date', label: 'Data', type: 'date', required: true },
+        { key: 'productId', label: 'Produto', type: 'select', required: true, options: [['', '— selecione —'], ...P.all().map((p) => [p.id, p.name])] },
+        { key: 'client', label: 'Cliente', type: 'text' },
+        { key: 'value', label: 'Valor (R$)', type: 'money', required: true },
+        { key: 'method', label: 'Forma de pagamento', type: 'select', options: CP.payments.METHODS },
+        { key: 'status', label: 'Status', type: 'select', options: S.STATUS },
+      ],
+      onChange: (k, v, set) => { if (k === 'productId') { const p = P.get(v.productId); if (p && (v.value == null || v.value === auto)) { set('value', p.price); auto = p.price; } } },
+      extraButtons: s ? [{ label: 'Excluir', cls: 'danger', onClick: (m) => { m.close(); A.deleteSale(s.id); } }] : [],
+      onSubmit: async (v) => { if (!(Number(v.value) > 0)) throw new Error('Informe um valor maior que zero.'); await S.save({ ...(s || {}), ...v, value: Number(v.value) }); UI.toast(s ? 'Venda atualizada.' : 'Venda registrada com sucesso.'); CP.App.refresh(); },
+    });
+  }
+  A.newSale = (prefill) => saleForm(null, prefill || {});
+  A.editSale = (id) => { const s = S.get(id); if (s) saleForm(s); };
+  A.deleteSale = async (id) => {
+    const ok = await UI.confirm({ title: 'Excluir venda', message: 'Excluir esta venda?', confirmText: 'Excluir', danger: true });
+    if (!ok) return; await S.remove(id); UI.toast('Venda excluída.'); CP.App.refresh();
+  };
+
+  CP.views.produtos = {
+    render(root) {
+      const tot = P.stats(), mon = P.stats(null, U.thisMonth());
+      root.innerHTML = UI.pageHead('Produtos', 'Ebooks e outros produtos digitais.', `<button class="btn soft" data-act="new-sale">${UI.icon('plus', 18)} Venda</button><button class="btn primary" data-act="new-prod">${UI.icon('plus', 18)} Produto</button>`) +
+        `<div class="grid g-stats">${UI.stat({ label: 'Quantidade vendida', value: tot.qty, sub: `${mon.qty} no mês atual` })}${UI.stat({ label: 'Receita', value: U.money(tot.revenue), sub: `${U.money(mon.revenue)} no mês atual` })}${UI.stat({ label: 'Lucro', value: U.money(tot.profit), sub: 'Receita − custo das vendas pagas' })}</div>` +
+        `<div class="section">${UI.tabs([['prod', 'Produtos', P.all().length], ['vend', 'Vendas', S.all().length]], tab)}<div id="box"></div></div>`;
+      const box = root.querySelector('#box');
+      if (tab === 'prod') {
+        const list = U.sortBy(P.all(), (p) => U.norm(p.name));
+        box.innerHTML = list.length ? `<section class="card">${UI.table([
+          { label: 'Produto', render: (p) => `<strong>${esc(p.name)}</strong>${p.description ? `<br><small>${esc(p.description)}</small>` : ''}` },
+          { label: 'Preço', cls: 'num', render: (p) => U.money(p.price) }, { label: 'Custo', cls: 'num', render: (p) => U.money(p.cost) },
+          { label: 'Vendidos', cls: 'num', render: (p) => P.stats(p.id).qty }, { label: 'Receita', cls: 'num', render: (p) => U.money(P.stats(p.id).revenue) },
+          { label: 'Lucro', cls: 'num', render: (p) => U.money(P.stats(p.id).profit) },
+          { label: 'Link', render: (p) => (p.link ? `<a class="link-out" href="${esc(p.link)}" target="_blank" rel="noopener">${UI.icon('link', 15)} Abrir</a>` : '—') },
+          { label: 'Status', render: (p) => UI.sb(p.status, UI.labelOf(P.STATUS, p.status)) },
+          { label: '', cls: 'act', render: (p) => UI.actions([{ act: 'p-sale', id: p.id, icon: 'plus', label: 'Registrar venda' }, { act: 'p-edit', id: p.id, icon: 'edit', label: 'Editar' }, { act: 'p-del', id: p.id, icon: 'trash', label: 'Excluir', danger: true }]) },
+        ], list)}</section>` : `<section class="card">${UI.empty({ icon: 'box', title: 'Nenhum produto cadastrado', text: 'Cadastre seu ebook com nome, preço e link de venda.', action: '<button class="btn soft" data-act="new-prod">+ Produto</button>' })}</section>`;
+      } else {
+        const draw = () => {
+          const rows = U.sortBy(S.all().filter((s) => (!sf.month || U.monthKey(s.date) === sf.month) && (!sf.product || s.productId === sf.product) && (!sf.status || s.status === sf.status)), (s) => s.date, -1);
+          box.querySelector('#slist').innerHTML = rows.length ? UI.table([
+            { label: 'Data', render: (s) => U.fmtDate(s.date) }, { label: 'Produto', render: (s) => `<strong>${esc((P.get(s.productId) || {}).name || 'Produto removido')}</strong>` },
+            { label: 'Cliente', render: (s) => esc(s.client || '—') }, { label: 'Valor', cls: 'num', render: (s) => U.money(s.value) },
+            { label: 'Forma', render: (s) => esc(UI.labelOf(CP.payments.METHODS, s.method)) }, { label: 'Status', render: (s) => UI.sb(s.status, UI.labelOf(S.STATUS, s.status)) },
+            { label: '', cls: 'act', render: (s) => UI.actions([{ act: 's-edit', id: s.id, icon: 'edit', label: 'Editar' }, { act: 's-del', id: s.id, icon: 'trash', label: 'Excluir', danger: true }]) },
+          ], rows) : UI.empty({ icon: 'box', title: 'Nenhuma venda encontrada', text: 'Registre uma venda ou ajuste os filtros.' });
+        };
+        box.innerHTML = `<section class="card">${UI.filters([{ key: 'month', label: 'Mês', type: 'month' }, { key: 'product', label: 'Produto', options: UI.opts.list(P.all().map((p) => [p.id, p.name]), 'Todos') }, { key: 'status', label: 'Status', options: UI.opts.list(S.STATUS, 'Todos') }], sf)}<div id="slist"></div></section>`;
+        draw(); UI.bindFilters(box, sf, draw);
+      }
+      UI.bindTabs(root, (t) => { tab = t; CP.views.produtos.render(root); });
+      UI.delegate(root, (act, id) => {
+        if (act === 'new-prod') A.newProduct(); else if (act === 'new-sale') A.newSale();
+        else if (act === 'p-sale') A.newSale({ productId: id, value: (P.get(id) || {}).price });
+        else if (act === 'p-edit') A.editProduct(id); else if (act === 'p-del') A.deleteProduct(id);
+        else if (act === 's-edit') A.editSale(id); else if (act === 's-del') A.deleteSale(id);
+      });
+    },
+  };
+})();
+
+</script>
+  <script>
+/* Leads (CRM simples) e Follow-up */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U, UI = CP.UI, esc = U.esc, L = CP.leads, Fu = CP.followups, A = CP.actions;
+  const lf = { q: '', status: '', origin: '' };
+  const ff = { q: '', status: 'pendente', type: '' };
+
+  /* ---------- Leads ---------- */
+  function leadForm(l) {
+    UI.form({
+      title: l ? 'Editar lead' : 'Novo lead', submitText: l ? 'Salvar alterações' : 'Cadastrar lead',
+      values: l || { firstContact: U.today(), origin: 'instagram', status: 'novo' },
+      fields: [
+        { key: 'name', label: 'Nome', type: 'text', required: true, full: true },
+        { key: 'firstContact', label: 'Data do primeiro contato', type: 'date' },
+        { key: 'origin', label: 'Origem', type: 'select', options: L.ORIGIN },
+        { key: 'phone', label: 'Telefone', type: 'tel' },
+        { key: 'interest', label: 'Interesse', type: 'text', placeholder: 'Ex.: terapia online' },
+        { key: 'status', label: 'Status', type: 'select', options: L.STATUS },
+        { key: 'nextContact', label: 'Próximo contato', type: 'date' },
+        { key: 'note', label: 'Observação administrativa', type: 'textarea', hint: 'Sem informações clínicas.' },
+      ],
+      extraButtons: l ? [{ label: 'Excluir', cls: 'danger', onClick: (m) => { m.close(); A.deleteLead(l.id); } }] : [],
+      onSubmit: async (v) => { await L.save({ ...(l || {}), ...v }); UI.toast(l ? 'Lead atualizado.' : 'Lead cadastrado.'); CP.App.refresh(); },
+    });
+  }
+  A.newLead = () => leadForm(null);
+  A.editLead = (id) => { const l = L.get(id); if (l) leadForm(l); };
+  A.deleteLead = async (id) => {
+    const ok = await UI.confirm({ title: 'Excluir lead', message: 'Excluir este lead?', confirmText: 'Excluir', danger: true });
+    if (!ok) return; await L.remove(id); UI.toast('Lead excluído.'); CP.App.refresh();
+  };
+
+  CP.views.leads = {
+    render(root) {
+      const stats = L.STATUS.map(([k, l]) => [l, L.all().filter((x) => x.status === k).length]).filter((x) => x[1]);
+      root.innerHTML = UI.pageHead('Leads', 'Acompanhe pessoas interessadas, do primeiro contato ao fechamento.', `<button class="btn primary" id="newL">${UI.icon('plus', 18)} Lead</button>`) +
+        (stats.length ? `<div class="sum-strip">${stats.map(([l, n]) => `<span>${esc(l)}: <b>${n}</b></span>`).join('')}</div>` : '') +
+        `<section class="card">${UI.filters([{ key: 'q', label: 'Buscar lead', type: 'search' }, { key: 'status', label: 'Status', options: UI.opts.list(L.STATUS, 'Todos') }, { key: 'origin', label: 'Origem', options: UI.opts.list(L.ORIGIN, 'Todas') }], lf)}<div id="list"></div></section>`;
+      const draw = () => {
+        const rows = U.sortBy(L.all().filter((l) => (!lf.q || U.norm(l.name + ' ' + (l.interest || '')).includes(U.norm(lf.q))) && (!lf.status || l.status === lf.status) && (!lf.origin || l.origin === lf.origin)), (l) => l.nextContact || '9999');
+        root.querySelector('#list').innerHTML = rows.length ? UI.table([
+          { label: 'Nome', render: (l) => `<strong>${esc(l.name)}</strong>${l.phone ? `<br><small>${esc(l.phone)}</small>` : ''}` },
+          { label: 'Primeiro contato', render: (l) => U.fmtDate(l.firstContact) }, { label: 'Origem', render: (l) => esc(UI.labelOf(L.ORIGIN, l.origin)) },
+          { label: 'Interesse', render: (l) => esc(l.interest || '—') }, { label: 'Status', render: (l) => UI.sb(l.status, UI.labelOf(L.STATUS, l.status)) },
+          { label: 'Próximo contato', render: (l) => U.fmtDate(l.nextContact) },
+          { label: '', cls: 'act', render: (l) => UI.actions([...(l.status === 'fechou' ? [{ act: 'l-conv', id: l.id, icon: 'userplus', label: 'Cadastrar como paciente' }] : []), { act: 'l-edit', id: l.id, icon: 'edit', label: 'Editar' }, { act: 'l-del', id: l.id, icon: 'trash', label: 'Excluir', danger: true }]) },
+        ], rows) : UI.empty({ icon: 'userplus', title: 'Nenhum lead encontrado', text: 'Registre contatos de Instagram, indicações, Google ou WhatsApp.', action: '<button class="btn soft" data-act="l-new">+ Lead</button>' });
+      };
+      draw(); UI.bindFilters(root, lf, draw);
+      root.querySelector('#newL').onclick = () => A.newLead();
+      UI.delegate(root, (act, id) => {
+        if (act === 'l-new') A.newLead(); else if (act === 'l-edit') A.editLead(id); else if (act === 'l-del') A.deleteLead(id);
+        else if (act === 'l-conv') { const l = L.get(id); if (l) A.newPatient({ name: l.name, phone: l.phone || '', status: 'nova' }); }
+      });
+    },
+  };
+
+  /* ---------- Follow-up ---------- */
+  function followForm(x) {
+    UI.form({
+      title: x ? 'Editar follow-up' : 'Novo follow-up', submitText: x ? 'Salvar alterações' : 'Cadastrar',
+      values: x || { type: 'antiga', status: 'pendente' },
+      fields: [
+        { key: 'name', label: 'Nome', type: 'text', required: true, full: true },
+        { key: 'type', label: 'Situação', type: 'select', options: Fu.TYPE },
+        { key: 'status', label: 'Status', type: 'select', options: Fu.STATUS },
+        { key: 'lastContact', label: 'Último contato', type: 'date' },
+        { key: 'nextContact', label: 'Data do próximo contato', type: 'date' },
+        { key: 'note', label: 'Observação administrativa', type: 'textarea', hint: 'Sem informações clínicas.' },
+      ],
+      extraButtons: x ? [{ label: 'Excluir', cls: 'danger', onClick: (m) => { m.close(); A.deleteFollowup(x.id); } }] : [],
+      onSubmit: async (v) => { await Fu.save({ ...(x || {}), ...v }); UI.toast(x ? 'Follow-up atualizado.' : 'Follow-up cadastrado.'); CP.App.refresh(); },
+    });
+  }
+  A.newFollowup = () => followForm(null);
+  A.editFollowup = (id) => { const x = Fu.get(id); if (x) followForm(x); };
+  A.deleteFollowup = async (id) => {
+    const ok = await UI.confirm({ title: 'Excluir follow-up', message: 'Excluir este follow-up?', confirmText: 'Excluir', danger: true });
+    if (!ok) return; await Fu.remove(id); UI.toast('Follow-up excluído.'); CP.App.refresh();
+  };
+  function contacted(x) {
+    UI.form({
+      title: 'Registrar contato', submitText: 'Salvar', values: { lastContact: U.today(), nextContact: '' },
+      fields: [
+        { key: 'lastContact', label: 'Data do contato', type: 'date', required: true },
+        { key: 'nextContact', label: 'Próximo contato (opcional)', type: 'date', hint: 'Sem próxima data, o follow-up fica como “contatado”.' },
+        { key: 'note', label: 'Observação administrativa', type: 'textarea' },
+      ],
+      onSubmit: async (v) => { await Fu.save({ ...x, lastContact: v.lastContact, nextContact: v.nextContact, note: v.note || x.note, status: v.nextContact ? 'pendente' : 'contatado' }); UI.toast('Contato registrado.'); CP.App.refresh(); },
+    });
+  }
+
+  CP.views.followup = {
+    render(root) {
+      const due = Fu.dueToday();
+      root.innerHTML = UI.pageHead('Follow-up', 'Pacientes antigas, pausas, altas e pessoas que demonstraram interesse.', `<button class="btn primary" id="newF">${UI.icon('plus', 18)} Follow-up</button>`) +
+        (due.count ? `<div class="alerts"><div class="alert">${UI.icon('bell', 20)}<span>Você possui ${due.count} contato${due.count > 1 ? 's' : ''} para acompanhar hoje.${due.leads.length ? ` (${due.leads.length} em Leads)` : ''}</span></div></div>` : '') +
+        `<section class="card">${UI.filters([{ key: 'q', label: 'Buscar por nome', type: 'search' }, { key: 'status', label: 'Status', options: UI.opts.list(Fu.STATUS, 'Todos') }, { key: 'type', label: 'Situação', options: UI.opts.list(Fu.TYPE, 'Todas') }], ff)}<div id="list"></div></section>`;
+      const draw = () => {
+        const t = U.today();
+        const rows = U.sortBy(Fu.all().filter((x) => (!ff.q || U.norm(x.name).includes(U.norm(ff.q))) && (!ff.status || x.status === ff.status) && (!ff.type || x.type === ff.type)), (x) => x.nextContact || '9999');
+        root.querySelector('#list').innerHTML = rows.length ? UI.table([
+          { label: 'Nome', render: (x) => `<strong>${esc(x.name)}</strong>` }, { label: 'Situação', render: (x) => esc(UI.labelOf(Fu.TYPE, x.type)) },
+          { label: 'Último contato', render: (x) => U.fmtDate(x.lastContact) },
+          { label: 'Próximo contato', render: (x) => (x.nextContact && x.status === 'pendente' && x.nextContact <= t ? `<strong style="color:var(--bad)">${U.fmtDate(x.nextContact)}</strong>` : U.fmtDate(x.nextContact)) },
+          { label: 'Status', render: (x) => UI.sb(x.status, UI.labelOf(Fu.STATUS, x.status)) }, { label: 'Observação', render: (x) => esc(x.note || '—') },
+          { label: '', cls: 'act', render: (x) => UI.actions([{ act: 'f-done', id: x.id, icon: 'check', label: 'Registrar contato' }, { act: 'f-edit', id: x.id, icon: 'edit', label: 'Editar' }, { act: 'f-del', id: x.id, icon: 'trash', label: 'Excluir', danger: true }]) },
+        ], rows) : UI.empty({ icon: 'bell', title: 'Nenhum follow-up neste filtro', text: 'Cadastre quem você quer reencontrar e a data do próximo contato.', action: '<button class="btn soft" data-act="f-new">+ Follow-up</button>' });
+      };
+      draw(); UI.bindFilters(root, ff, draw);
+      root.querySelector('#newF').onclick = () => A.newFollowup();
+      UI.delegate(root, (act, id) => {
+        if (act === 'f-new') A.newFollowup(); else if (act === 'f-edit') A.editFollowup(id); else if (act === 'f-del') A.deleteFollowup(id);
+        else if (act === 'f-done') { const x = Fu.get(id); if (x) contacted(x); }
+      });
+    },
+  };
+})();
+
+</script>
+  <script>
+/* Metas, Conquistas e Evolução (gráficos) */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U, UI = CP.UI, esc = U.esc, G = CP.goals, Ac = CP.achievements, A = CP.actions, F = CP.finance;
+
+  /* ---------- Metas ---------- */
+  function goalForm(g) {
+    UI.form({
+      title: g ? 'Editar meta' : 'Nova meta', submitText: g ? 'Salvar alterações' : 'Criar meta',
+      values: g || { category: 'financeira', unit: 'money', status: 'andamento', current: 0 },
+      fields: [
+        { key: 'name', label: 'Nome', type: 'text', required: true, full: true, placeholder: 'Ex.: Faturar R$ 5.000/mês' },
+        { key: 'category', label: 'Categoria', type: 'select', options: G.CAT },
+        { key: 'unit', label: 'Tipo de valor', type: 'select', options: G.UNIT },
+        { key: 'current', label: 'Valor atual', type: 'number', step: '0.01' },
+        { key: 'target', label: 'Valor objetivo', type: 'number', step: '0.01', required: true },
+        { key: 'deadline', label: 'Prazo', type: 'date' },
+        { key: 'status', label: 'Status', type: 'select', options: G.STATUS },
+      ],
+      extraButtons: g ? [{ label: 'Excluir', cls: 'danger', onClick: (m) => { m.close(); A.deleteGoal(g.id); } }] : [],
+      onSubmit: async (v) => {
+        if (!(Number(v.target) > 0)) throw new Error('O valor objetivo precisa ser maior que zero.');
+        await G.save({ ...(g || {}), ...v, current: Number(v.current) || 0, target: Number(v.target) });
+        UI.toast(g ? 'Meta atualizada.' : 'Meta criada.'); CP.App.refresh();
+      },
+    });
+  }
+  A.newGoal = () => goalForm(null);
+  A.editGoal = (id) => { const g = G.get(id); if (g) goalForm(g); };
+  A.deleteGoal = async (id) => {
+    const ok = await UI.confirm({ title: 'Excluir meta', message: 'Excluir esta meta?', confirmText: 'Excluir', danger: true });
+    if (!ok) return; await G.remove(id); UI.toast('Meta excluída.'); CP.App.refresh();
+  };
+
+  CP.views.metas = {
+    render(root) {
+      const list = U.sortBy(G.all(), (g) => (g.status === 'concluida' ? 1 : 0) + (g.deadline || '9999'));
+      const monthly = Number(CP.settings.get('monthlyGoal')) || 0;
+      const rec = F.monthSummary(U.thisMonth()).received;
+      root.innerHTML = UI.pageHead('Metas', 'Acompanhe o que você quer alcançar.', `<button class="btn primary" id="newG">${UI.icon('plus', 18)} Meta</button>`) +
+        (monthly > 0 ? `<section class="card"><div class="prog-line"><strong style="color:var(--wine)">Meta financeira do mês (Configurações)</strong><span>${U.money(rec)} de ${U.money(monthly)}</span></div>${UI.progress(Math.round(rec / monthly * 100))}</section>` : '') +
+        `<div class="grid g-3 section">${list.map((g) => `<article class="card goal"><div class="card-head"><h4>${esc(g.name)}</h4>${UI.sb(g.status, UI.labelOf(G.STATUS, g.status))}</div>
+          <div class="prog-line"><span>${esc(G.fmt(g, g.current))} de ${esc(G.fmt(g, g.target))}</span><strong>${G.pct(g)}%</strong></div>${UI.progress(G.pct(g))}
+          <p style="margin:10px 0 0;font-size:.84rem">${esc(UI.labelOf(G.CAT, g.category))}${g.deadline ? ' · prazo ' + U.fmtDate(g.deadline) : ''}</p>
+          <div class="row-actions" style="margin-top:8px">${UI.actions([{ act: 'g-upd', id: g.id, icon: 'refresh', label: 'Atualizar valor atual' }, { act: 'g-edit', id: g.id, icon: 'edit', label: 'Editar' }, { act: 'g-del', id: g.id, icon: 'trash', label: 'Excluir', danger: true }])}</div></article>`).join('')}</div>` +
+        (list.length ? '' : `<section class="card section">${UI.empty({ icon: 'flag', title: 'Nenhuma meta criada', text: 'Exemplo: “Faturar R$ 5.000/mês”. Defina o valor objetivo e atualize o valor atual quando quiser.', action: '<button class="btn soft" data-act="g-new">+ Meta</button>' })}</section>`);
+      root.querySelector('#newG').onclick = () => A.newGoal();
+      UI.delegate(root, (act, id) => {
+        if (act === 'g-new') A.newGoal(); else if (act === 'g-edit') A.editGoal(id); else if (act === 'g-del') A.deleteGoal(id);
+        else if (act === 'g-upd') {
+          const g = G.get(id);
+          UI.form({ title: 'Atualizar valor atual', submitText: 'Salvar', values: { current: g.current }, fields: [{ key: 'current', label: `Valor atual — ${g.name}`, type: 'number', step: '0.01', required: true }],
+            onSubmit: async (v) => { const cur = Number(v.current) || 0; await G.save({ ...g, current: cur, status: cur >= g.target ? 'concluida' : g.status }); UI.toast(cur >= g.target ? 'Meta concluída! 🌷' : 'Meta atualizada.'); CP.App.refresh(); } });
+        }
+      });
+    },
+  };
+
+  /* ---------- Conquistas ---------- */
+  function achForm(a) {
+    UI.form({
+      title: a ? 'Editar conquista' : 'Nova conquista', submitText: a ? 'Salvar alterações' : 'Registrar conquista', values: a || { date: U.today() },
+      fields: [
+        { key: 'title', label: 'Título', type: 'text', required: true, full: true },
+        { key: 'date', label: 'Data', type: 'date', required: true },
+        { key: 'value', label: 'Valor (opcional, R$)', type: 'money' },
+        { key: 'description', label: 'Descrição', type: 'textarea' },
+        { key: 'image', label: 'Imagem (opcional)', type: 'image' },
+      ],
+      extraButtons: a ? [{ label: 'Excluir', cls: 'danger', onClick: (m) => { m.close(); A.deleteAchievement(a.id); } }] : [],
+      onSubmit: async (v) => { await Ac.save({ ...(a || {}), ...v }); UI.toast(a ? 'Conquista atualizada.' : 'Conquista registrada.'); CP.App.refresh(); },
+    });
+  }
+  A.newAchievement = () => achForm(null);
+  A.editAchievement = (id) => { const a = Ac.get(id); if (a) achForm(a); };
+  A.deleteAchievement = async (id) => {
+    const ok = await UI.confirm({ title: 'Excluir conquista', message: 'Excluir esta conquista?', confirmText: 'Excluir', danger: true });
+    if (!ok) return; await Ac.remove(id); UI.toast('Conquista excluída.'); CP.App.refresh();
+  };
+
+  CP.views.conquistas = {
+    render(root) {
+      const list = U.sortBy(Ac.all(), (a) => a.date, -1);
+      root.innerHTML = UI.pageHead('Minhas conquistas', 'Registre cada passo da sua trajetória.', `<button class="btn primary" id="newA">${UI.icon('plus', 18)} Conquista</button>`) +
+        (list.length ? `<div class="timeline">${list.map((a) => `<div class="t-item"><div class="card"><div class="t-date">${U.fmtDate(a.date)}</div><div class="card-head" style="margin-bottom:6px"><h3 style="margin:0">${esc(a.title)}</h3>${UI.actions([{ act: 'a-edit', id: a.id, icon: 'edit', label: 'Editar' }, { act: 'a-del', id: a.id, icon: 'trash', label: 'Excluir', danger: true }])}</div>
+          ${a.value ? `<p style="margin:0 0 6px"><strong>${U.money(a.value)}</strong></p>` : ''}${a.description ? `<p style="margin:0">${esc(a.description)}</p>` : ''}${a.image ? `<img src="${esc(a.image)}" alt="Imagem da conquista ${esc(a.title)}">` : ''}</div></div>`).join('')}</div>`
+          : `<section class="card">${UI.empty({ icon: 'award', title: 'Sua linha do tempo começa aqui', text: 'Registre a primeira paciente, o primeiro ebook vendido, uma certificação…', action: '<button class="btn soft" data-act="a-new">+ Conquista</button>' })}</section>`);
+      root.querySelector('#newA').onclick = () => A.newAchievement();
+      UI.delegate(root, (act, id) => { if (act === 'a-new') A.newAchievement(); else if (act === 'a-edit') A.editAchievement(id); else if (act === 'a-del') A.deleteAchievement(id); });
+    },
+  };
+
+  /* ---------- Evolução ---------- */
+  let year = U.today().slice(0, 4), charts = [];
+  CP.views.evolucao = {
+    render(root) {
+      charts.forEach((c) => c.destroy()); charts = [];
+      const years = UI.opts.years(); if (!years.includes(year)) years.push(year);
+      const s = F.yearSummary(year);
+      const labels = s.months.map((m) => U.monthShort(m.month));
+      root.innerHTML = UI.pageHead('Evolução', 'Seu consultório mês a mês.', `<label class="f" style="min-width:140px"><span>Ano</span><select id="yy">${years.sort().reverse().map((y) => `<option ${y === year ? 'selected' : ''}>${y}</option>`).join('')}</select></label>`) +
+        `<div class="grid g-stats">${UI.stat({ label: 'Faturamento no ano', value: U.money(s.revenue) })}${UI.stat({ label: 'Despesas no ano', value: U.money(s.expenses) })}${UI.stat({ label: 'Lucro no ano', value: U.money(s.profit), tone: s.profit < 0 ? 'neg' : '' })}</div>
+        <p id="chartWarn" class="notice section" hidden>Os gráficos precisam do Chart.js, carregado da internet. Conecte-se à internet e recarregue a página.</p>
+        <div class="grid g-2 section" id="charts"></div>`;
+      root.querySelector('#yy').onchange = (e) => { year = e.target.value; CP.views.evolucao.render(root); };
+      if (typeof Chart === 'undefined') { root.querySelector('#chartWarn').hidden = false; return; }
+
+      const C = { wine: '#6E3F45', burnt: '#B26D70', rose: '#C98F94', roseL: '#E8D2D2', gray: '#5D5555' };
+      const box = root.querySelector('#charts');
+      const add = (title, type, data, opts = {}) => {
+        const id = 'ch' + charts.length;
+        box.insertAdjacentHTML('beforeend', `<section class="card"><h3>${esc(title)}</h3><div class="chart-box"><canvas id="${id}" role="img" aria-label="${esc(title)}"></canvas></div></section>`);
+        const money = opts.money;
+        charts.push(new Chart(box.querySelector('#' + id), {
+          type, data,
+          options: { responsive: true, maintainAspectRatio: false, indexAxis: opts.horizontal ? 'y' : 'x',
+            plugins: { legend: { display: data.datasets.length > 1, labels: { color: C.gray, boxWidth: 12 } }, tooltip: { callbacks: { label: (c) => ` ${c.dataset.label ? c.dataset.label + ': ' : ''}${money ? U.money(c.parsed[opts.horizontal ? 'x' : 'y']) : c.parsed[opts.horizontal ? 'x' : 'y']}` } } },
+            scales: { x: { ticks: { color: C.gray }, grid: { display: false } }, y: { beginAtZero: true, ticks: { color: C.gray, precision: 0 }, grid: { color: '#EFE5E3' } } } },
+        }));
+      };
+      const ds = (label, arr, color, extra = {}) => ({ label, data: arr, backgroundColor: color, borderColor: color, borderRadius: 6, tension: .3, ...extra });
+      const M = s.months;
+      add('Faturamento mensal', 'bar', { labels, datasets: [ds('Faturamento', M.map((m) => m.received), C.burnt)] }, { money: true });
+      add('Despesas, faturamento e lucro', 'line', { labels, datasets: [ds('Faturamento', M.map((m) => m.received), C.burnt), ds('Despesas', M.map((m) => m.expensesPaid), C.gray), ds('Lucro', M.map((m) => m.profit), C.wine)] }, { money: true });
+      add('Pacientes atendidas e sessões', 'bar', { labels, datasets: [ds('Pacientes', M.map((m) => m.servedCount), C.rose), ds('Sessões', M.map((m) => m.sessionsDone), C.wine)] });
+      add('Ticket médio', 'line', { labels, datasets: [ds('Ticket médio', M.map((m) => (m.ticket == null ? null : m.ticket)), C.wine, { spanGaps: true })] }, { money: true });
+      const byP = {};
+      CP.payments.all().filter((p) => p.status === 'pago' && p.refType !== 'produto' && U.yearOf(p.date) === year).forEach((p) => { const k = CP.patients.name(p.patientId, p.patientName); byP[k] = (byP[k] || 0) + (Number(p.value) || 0); });
+      const pe = Object.entries(byP).sort((a, b) => b[1] - a[1]);
+      add('Receita por paciente (ano)', 'bar', { labels: pe.map((x) => x[0]), datasets: [ds('Receita', pe.map((x) => x[1]), C.rose)] }, { money: true, horizontal: true });
+      const byPr = {};
+      CP.sales.all().filter((x) => x.status === 'pago' && U.yearOf(x.date) === year).forEach((x) => { const k = (CP.products.get(x.productId) || {}).name || 'Produto removido'; byPr[k] = (byPr[k] || 0) + (Number(x.value) || 0); });
+      CP.payments.all().filter((p) => p.status === 'pago' && p.refType === 'produto' && U.yearOf(p.date) === year).forEach((p) => { byPr['Outros produtos'] = (byPr['Outros produtos'] || 0) + (Number(p.value) || 0); });
+      const pr = Object.entries(byPr);
+      add('Receita por produto (ano)', 'bar', { labels: pr.map((x) => x[0]), datasets: [ds('Receita', pr.map((x) => x[1]), C.burnt)] }, { money: true });
+      add('Novos leads', 'bar', { labels, datasets: [ds('Novos leads', M.map((m) => m.newLeads), C.roseL, { borderColor: C.rose, borderWidth: 1 })] });
+      add('Novas pacientes e saídas', 'bar', { labels, datasets: [ds('Novas pacientes', M.map((m) => m.newPatients), C.wine), ds('Pacientes que saíram', M.map((m) => m.exits), C.rose)] });
+    },
+  };
+})();
+
+</script>
+  <script>
+/* Configurações e backup */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U, UI = CP.UI, esc = U.esc, B = CP.backup;
+
+  function fileName() { return `backup-consultorio-${U.today()}.json`; }
+
+  async function exportBackup() {
+    const payload = await B.export();
+    U.download(fileName(), JSON.stringify(payload, null, 2));
+    CP.settings.save({ lastBackup: new Date().toISOString() });
+    UI.toast('Backup exportado.');
+    CP.App.refresh();
+  }
+
+  async function importBackup(file) {
+    if (!file) return;
+    let obj;
+    try { obj = JSON.parse(await U.readText(file)); }
+    catch (e) { UI.toast('Este arquivo não é um JSON válido.', 'err'); return; }
+    const v = B.validate(obj);
+    if (!v.ok) {
+      UI.modal({ title: 'Backup inválido', body: `<p class="confirm-msg">O arquivo não foi importado e seus dados atuais continuam intactos.</p><ul>${v.errors.map((e) => `<li>${esc(e)}</li>`).join('')}</ul>` });
+      return;
+    }
+    const ok = await UI.confirm({
+      title: 'Importar backup', confirmText: 'Substituir dados', danger: true,
+      message: `O arquivo é válido e contém <strong>${v.total} registro(s)</strong>.<br><br>Isso substituirá os dados atuais. Deseja continuar?`,
+    });
+    if (!ok) return;
+    try { await B.import(obj); UI.toast('Backup importado com sucesso.'); CP.App.rebuildShell(); CP.App.go('dashboard'); }
+    catch (e) { console.error(e); UI.toast('Não foi possível importar o backup.', 'err'); }
+  }
+
+  async function clearAll() {
+    const first = await UI.confirm({ title: 'Limpar todos os dados', confirmText: 'Continuar', danger: true, message: 'Todos os pacientes, pagamentos, despesas e demais registros serão apagados deste navegador. <strong>Recomendamos exportar um backup antes.</strong>' });
+    if (!first) return;
+    const m = UI.modal({ title: 'Confirmação final', footer: true, body: '<p class="confirm-msg">Para confirmar, digite <strong>APAGAR</strong> abaixo. Esta ação não pode ser desfeita.</p><div class="field"><input id="cfm" type="text" autocomplete="off" aria-label="Digite APAGAR"></div>' });
+    m.foot.innerHTML = '<button class="btn ghost" data-n>Cancelar</button><button class="btn danger-solid" data-y disabled>Apagar tudo</button>';
+    const inp = m.body.querySelector('#cfm');
+    inp.addEventListener('input', () => { m.foot.querySelector('[data-y]').disabled = inp.value.trim().toUpperCase() !== 'APAGAR'; });
+    m.foot.querySelector('[data-n]').onclick = () => m.close();
+    m.foot.querySelector('[data-y]').onclick = async () => { await B.clear(); m.close(); UI.toast('Todos os dados foram apagados.'); CP.App.go('dashboard'); };
+  }
+
+  CP.views.configuracoes = {
+    render(root) {
+      const s = CP.settings.data;
+      const last = s.lastBackup ? new Date(s.lastBackup).toLocaleString('pt-BR') : 'nunca';
+      root.innerHTML = UI.pageHead('Configurações', 'Dados profissionais, recibos e backup.') +
+        `<section class="card"><h3>Dados profissionais e do recibo</h3><form id="sf" class="form-grid" novalidate>
+          <div class="field"><label>Nome profissional</label><input name="name" value="${esc(s.name)}"></div>
+          <div class="field"><label>Profissão</label><input name="profession" value="${esc(s.profession)}"></div>
+          <div class="field"><label>CRP</label><input name="crp" value="${esc(s.crp)}"></div>
+          <div class="field"><label>Telefone</label><input name="phone" type="tel" value="${esc(s.phone)}"></div>
+          <div class="field"><label>E-mail</label><input name="email" type="email" value="${esc(s.email)}"></div>
+          <div class="field"><label>Chave Pix</label><input name="pix" value="${esc(s.pix)}"></div>
+          <div class="field"><label>CPF/CNPJ no recibo (opcional)</label><input name="cpf" value="${esc(s.cpf)}"></div>
+          <div class="field"><label>Endereço/cidade no recibo (opcional)</label><input name="address" value="${esc(s.address)}"></div>
+          <div class="field span2"><label>Texto adicional do recibo (opcional)</label><textarea name="receiptNote" rows="2">${esc(s.receiptNote)}</textarea><small>Aparece no rodapé. Nenhuma informação fiscal é adicionada automaticamente.</small></div>
+          <div class="field"><label>Meta financeira mensal (R$)</label><input name="monthlyGoal" type="number" step="0.01" min="0" inputmode="decimal" value="${s.monthlyGoal || ''}"></div>
+          <div class="field"><label>Logo</label><div class="img-field"><img class="img-prev" id="logoPrev" alt="" ${s.logo ? `src="${esc(s.logo)}"` : 'hidden'}><div class="img-actions"><input type="file" id="logoIn" accept="image/*"><button type="button" class="btn ghost sm" id="logoRm">Remover logo</button></div></div></div>
+          <div class="field span2"><label>Categorias de despesas (uma por linha)</label><textarea name="categories" rows="6">${esc((s.expenseCategories || []).join('\n'))}</textarea></div>
+          <div class="form-error span2" id="sErr" hidden></div>
+          <div class="span2"><button class="btn primary" type="submit">Salvar configurações</button></div></form></section>
+        <section class="card section"><h3>Backup dos dados</h3>
+          <p>Na Fase 1, seus dados ficam apenas neste navegador e podem ser perdidos se o armazenamento do navegador for apagado. Exporte um backup com frequência.</p>
+          <p>Último backup: <strong>${esc(last)}</strong> · Armazenamento: <strong>${CP.storage.mode === 'indexeddb' ? 'IndexedDB' : 'localStorage (plano B)'}</strong></p>
+          <div class="head-actions"><button class="btn primary" id="bkExp">${UI.icon('download', 18)} Exportar backup</button>
+          <button class="btn soft" id="bkImp">${UI.icon('upload', 18)} Importar backup</button><input type="file" id="bkFile" accept="application/json,.json" hidden>
+          <button class="btn danger" id="bkClr">${UI.icon('trash', 18)} Limpar todos os dados</button></div></section>
+        <div class="notice big">Este sistema é administrativo e financeiro. Não utilize este espaço para armazenar prontuários ou informações clínicas.</div>`;
+
+      let logo = s.logo || '';
+      root.querySelector('#logoIn').addEventListener('change', async (e) => {
+        const f = e.target.files[0]; if (!f) return;
+        try { logo = await U.resizeImage(f, 400, 'image/png'); const p = root.querySelector('#logoPrev'); p.src = logo; p.hidden = false; } catch (err) { UI.toast(err.message, 'err'); }
+      });
+      root.querySelector('#logoRm').onclick = () => { logo = ''; root.querySelector('#logoPrev').hidden = true; root.querySelector('#logoIn').value = ''; };
+      root.querySelector('#sf').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const cats = String(fd.get('categories')).split('\n').map((c) => c.trim().toLowerCase()).filter(Boolean);
+        try {
+          CP.settings.save({
+            name: String(fd.get('name')).trim(), profession: String(fd.get('profession')).trim(), crp: String(fd.get('crp')).trim(),
+            phone: String(fd.get('phone')).trim(), email: String(fd.get('email')).trim(), pix: String(fd.get('pix')).trim(),
+            cpf: String(fd.get('cpf')).trim(), address: String(fd.get('address')).trim(), receiptNote: String(fd.get('receiptNote')).trim(),
+            monthlyGoal: Number(fd.get('monthlyGoal')) || 0, logo, expenseCategories: cats.length ? [...new Set(cats)] : CP.settings.DEFAULTS.expenseCategories,
+          });
+          UI.toast('Configurações salvas.');
+          CP.App.rebuildShell(); CP.App.refresh();
+        } catch (err) { const b = root.querySelector('#sErr'); b.textContent = 'Não foi possível salvar (o logo pode ser grande demais). Tente uma imagem menor.'; b.hidden = false; }
+      });
+      root.querySelector('#bkExp').onclick = exportBackup;
+      root.querySelector('#bkImp').onclick = () => root.querySelector('#bkFile').click();
+      root.querySelector('#bkFile').onchange = (e) => { importBackup(e.target.files[0]); e.target.value = ''; };
+      root.querySelector('#bkClr').onclick = clearAll;
+    },
+  };
+})();
+
+</script>
+  <script>
+/* Busca global: paciente, pagamento, despesa, produto, lead, data */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U, esc = U.esc;
+  const A = CP.actions;
+
+  function run(q) {
+    const nq = U.norm(q.trim());
+    if (nq.length < 2) return [];
+    const dq = U.parseDateQuery(q);
+    const dateHit = (d) => !!dq && !!d && (dq.type === 'day' ? d.slice(0, 10) === dq.value : U.monthKey(d) === dq.value);
+    const has = (...vals) => vals.some((v) => U.norm(v).includes(nq));
+    const nm = CP.patients.name;
+    const g = [];
+    const add = (title, items) => { if (items.length) g.push({ title, items: items.slice(0, 6) }); };
+
+    add('Pacientes', CP.patients.all().filter((p) => has(p.name, p.phone, p.email, p.notes) || dateHit(p.evaluationDate) || dateHit(p.startDate))
+      .map((p) => ({ label: p.name, sub: UI_label(CP.patients.STATUS, p.status), go: () => CP.App.go('pacientes', p.id) })));
+    add('Pagamentos', CP.payments.all().filter((p) => has(nm(p.patientId, p.patientName), p.note, String(p.value), CP.payments.METHODS.find((m) => m[0] === p.method)?.[1]) || dateHit(p.date))
+      .map((p) => ({ label: `${nm(p.patientId, p.patientName)} — ${U.money(p.value)}`, sub: `${U.fmtDate(p.date)} · ${UI_label(CP.payments.STATUS, p.status)}`, go: () => A.editPayment(p.id) })));
+    add('Sessões', CP.sessions.all().filter((s) => has(nm(s.patientId, s.patientName), s.note) || dateHit(s.date))
+      .map((s) => ({ label: `Sessão — ${nm(s.patientId, s.patientName)}`, sub: `${U.fmtDate(s.date)} · ${UI_label(CP.sessions.STATUS, s.status)}`, go: () => A.editSession(s.id) })));
+    add('Despesas', CP.expenses.all().filter((x) => has(x.name, x.category, x.note) || dateHit(x.date))
+      .map((x) => ({ label: `${x.name} — ${U.money(x.value)}`, sub: U.fmtDate(x.date), go: () => A.editExpense(x.id) })));
+    add('Produtos e vendas', [
+      ...CP.products.all().filter((p) => has(p.name, p.description)).map((p) => ({ label: p.name, sub: 'Produto', go: () => A.editProduct(p.id) })),
+      ...CP.sales.all().filter((s) => has(s.client) || dateHit(s.date)).map((s) => ({ label: `Venda — ${s.client || 'cliente'} (${U.money(s.value)})`, sub: U.fmtDate(s.date), go: () => A.editSale(s.id) })),
+    ]);
+    add('Leads', CP.leads.all().filter((l) => has(l.name, l.interest, l.note) || dateHit(l.firstContact) || dateHit(l.nextContact))
+      .map((l) => ({ label: l.name, sub: UI_label(CP.leads.STATUS, l.status), go: () => A.editLead(l.id) })));
+    add('Follow-up', CP.followups.all().filter((f) => has(f.name, f.note) || dateHit(f.nextContact) || dateHit(f.lastContact))
+      .map((f) => ({ label: f.name, sub: `Próximo: ${U.fmtDate(f.nextContact)}`, go: () => A.editFollowup(f.id) })));
+    return g;
+  }
+  function UI_label(list, v) { const f = list.find((x) => x[0] === v); return f ? f[1] : v || ''; }
+
+  CP.search = {
+    run,
+    init(input, box) {
+      let results = [];
+      const draw = () => {
+        const q = input.value;
+        if (U.norm(q.trim()).length < 2) { box.hidden = true; return; }
+        results = run(q);
+        let n = 0;
+        box.innerHTML = results.length
+          ? results.map((gr) => `<h5>${esc(gr.title)}</h5>${gr.items.map((it) => `<button data-i="${n++}">${esc(it.label)}<small>${esc(it.sub || '')}</small></button>`).join('')}`).join('')
+          : '<p style="padding:12px;margin:0">Nenhum resultado encontrado.</p>';
+        box.hidden = false;
+      };
+      input.addEventListener('input', U.debounce(draw, 150));
+      input.addEventListener('focus', draw);
+      box.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-i]'); if (!b) return;
+        const flat = results.flatMap((gr) => gr.items);
+        const it = flat[Number(b.dataset.i)];
+        box.hidden = true; input.value = '';
+        document.getElementById('topbar').classList.remove('search-open');
+        if (it) it.go();
+      });
+      document.addEventListener('click', (e) => { if (!box.contains(e.target) && e.target !== input) box.hidden = true; });
+      input.addEventListener('keydown', (e) => { if (e.key === 'Escape') { box.hidden = true; input.blur(); } });
+    },
+  };
+})();
+
+</script>
+  <script>
+/* Inicialização, rotas (hash) e estrutura da página */
+(function () {
+  'use strict';
+  const CP = window.CP, U = CP.U, UI = CP.UI, esc = U.esc;
+
+  const NAV = [
+    ['dashboard', 'Dashboard', 'home'], ['pacientes', 'Pacientes', 'users'], ['agenda', 'Agenda', 'calendar'],
+    ['pagamentos', 'Pagamentos', 'wallet'], ['recibos', 'Recibos', 'receipt'], ['financeiro', 'Financeiro', 'chart'],
+    ['despesas', 'Despesas', 'tag'], ['produtos', 'Produtos', 'box'], ['leads', 'Leads', 'userplus'],
+    ['followup', 'Follow-up', 'bell'], ['metas', 'Metas', 'flag'], ['conquistas', 'Conquistas', 'award'],
+    ['evolucao', 'Evolução', 'trend'], ['configuracoes', 'Configurações', 'settings'],
+  ];
+  const BOTTOM = ['dashboard', 'pacientes', 'agenda', 'pagamentos'];
+  const App = (CP.App = { current: { name: 'dashboard', param: null } });
+
+  const parse = () => {
+    const [name, param] = location.hash.replace(/^#\/?/, '').split('/');
+    return { name: name || 'dashboard', param: param ? decodeURIComponent(param) : null };
+  };
+  App.go = (name, param) => {
+    const target = '#/' + name + (param ? '/' + encodeURIComponent(param) : '');
+    if (location.hash === target) App.refresh(); else location.hash = target;
+  };
+  App.refresh = () => render(true);
+
+  function render(keepScroll) {
+    const r = parse();
+    App.current = r;
+    const root = document.getElementById('view');
+    const view = CP.views[r.name] || CP.views.dashboard;
+    const sy = window.scrollY;
+    try { root.innerHTML = ''; view.render(root, r.param); }
+    catch (e) { console.error(e); root.innerHTML = `<div class="card"><h3>Não foi possível abrir esta tela</h3><p>${esc(e.message)}</p><a class="btn soft" href="#/dashboard">Voltar ao início</a></div>`; }
+    markNav(r.name);
+    window.scrollTo(0, keepScroll ? sy : 0);
+  }
+
+  function markNav(name) {
+    const item = NAV.find((n) => n[0] === name) || NAV[0];
+    document.getElementById('topTitle').textContent = item[1];
+    document.title = item[1] + ' · Meu Consultório';
+    document.querySelectorAll('.nav a, .bottomnav a').forEach((a) => a.classList.toggle('on', a.dataset.r === item[0]));
+    const more = document.getElementById('moreBtn');
+    if (more) more.classList.toggle('on', !BOTTOM.includes(item[0]));
+  }
+
+  function buildShell() {
+    const s = CP.settings.data;
+    const mark = s.logo ? `<img src="${esc(s.logo)}" alt="">` : '<span>L</span>';
+    document.getElementById('sidebar').innerHTML = `
+      <div class="brand"><div class="brand-mark">${mark}</div><div class="brand-name">Meu Consultório<small>${esc(s.name || '')}</small></div></div>
+      <nav class="nav">${NAV.map(([k, l, i]) => `<a href="#/${k}" data-r="${k}">${UI.icon(i)}<span>${l}</span></a>`).join('')}</nav>
+      <div class="side-foot">Sistema administrativo e financeiro.<br>Não armazene prontuários ou informações clínicas.</div>`;
+    document.getElementById('topbar').innerHTML = `
+      <div class="top-title" id="topTitle"></div>
+      <div class="search-box">${UI.icon('search', 18)}<input id="globalSearch" type="search" placeholder="Buscar paciente, pagamento, despesa, data…" autocomplete="off" aria-label="Busca global"><div id="searchResults" class="search-results" hidden></div></div>
+      <button class="icon-btn" id="searchToggle" aria-label="Buscar">${UI.icon('search')}</button>
+      <button class="btn primary" id="topAdd">${UI.icon('plus', 18)} Novo</button>`;
+    document.getElementById('bottomnav').innerHTML =
+      BOTTOM.map((k) => { const n = NAV.find((x) => x[0] === k); return `<a href="#/${k}" data-r="${k}">${UI.icon(n[2], 22)}<span>${n[1]}</span></a>`; }).join('') +
+      `<button id="moreBtn">${UI.icon('more', 22)}<span>Mais</span></button>`;
+
+    document.getElementById('fab').onclick = CP.actions.quickAdd;
+    document.getElementById('topAdd').onclick = CP.actions.quickAdd;
+    document.getElementById('moreBtn').onclick = moreSheet;
+    document.getElementById('searchToggle').onclick = () => {
+      const tb = document.getElementById('topbar');
+      tb.classList.toggle('search-open');
+      if (tb.classList.contains('search-open')) document.getElementById('globalSearch').focus();
+    };
+    CP.search.init(document.getElementById('globalSearch'), document.getElementById('searchResults'));
+  }
+
+  function moreSheet() {
+    const m = UI.modal({ title: 'Menu', body: `<div class="quick-grid">${NAV.filter((n) => !BOTTOM.includes(n[0])).map(([k, l, i]) => `<a class="quick" href="#/${k}" data-close-me>${UI.icon(i, 22)}<span>${l}</span></a>`).join('')}</div>` });
+    m.body.addEventListener('click', (e) => { if (e.target.closest('[data-close-me]')) m.close(); });
+  }
+
+  CP.actions.quickAdd = () => {
+    const items = [['Paciente', 'users', 'newPatient'], ['Pagamento', 'wallet', 'newPayment'], ['Sessão', 'calendar', 'newSession'], ['Despesa', 'tag', 'newExpense'], ['Venda', 'box', 'newSale'], ['Lead', 'userplus', 'newLead'], ['Follow-up', 'bell', 'newFollowup'], ['Meta', 'flag', 'newGoal'], ['Conquista', 'award', 'newAchievement']];
+    const m = UI.modal({ title: 'Adicionar', body: `<div class="quick-grid">${items.map(([l, i, a]) => `<button class="quick" data-a="${a}">${UI.icon(i, 22)}<span>+ ${l}</span></button>`).join('')}</div>` });
+    m.body.addEventListener('click', (e) => { const b = e.target.closest('[data-a]'); if (!b) return; m.close(); CP.actions[b.dataset.a](); });
+  };
+
+  /* Primeira execução: cadastra somente as 4 pacientes informadas */
+  async function seedIfNeeded() {
+    if (CP.settings.get('seeded')) return;
+    if (CP.patients.all().length === 0) await CP.patients.seed();
+    CP.settings.save({ seeded: true });
+  }
+
+  App.rebuildShell = () => { buildShell(); markNav(App.current.name); };
+
+  async function boot() {
+    if (App.booted) return; // evita inicialização dupla (e cadastro inicial duplicado)
+    App.booted = true;
+    try {
+      CP.settings.load();
+      await CP.storage.init();
+      await CP.db.load();
+      await seedIfNeeded();
+      buildShell();
+      window.addEventListener('hashchange', () => { document.getElementById('topbar').classList.remove('search-open'); render(false); });
+      render(false);
+    } catch (e) {
+      console.error(e);
+      document.getElementById('view').innerHTML = `<div class="card"><h3>Não foi possível iniciar o sistema</h3><p>${esc(e.message)}</p><p>Verifique se o navegador permite armazenamento local (não use aba anônima) e recarregue a página.</p></div>`;
+    }
+  }
+  document.addEventListener('DOMContentLoaded', boot);
+})();
+
+</script>
+</body>
+</html>
